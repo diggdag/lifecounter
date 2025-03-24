@@ -24,7 +24,7 @@ class SettingsTableViewController: UITableViewController{
     @IBOutlet var interval3: UISlider!
     @IBOutlet var opacityLabel: UILabel!
     
-    @IBOutlet var bannerView: GADBannerView!
+    @IBOutlet var bannerView: BannerView!
     weak var delegate: ChildViewControllerDelegate?
     var appDelegate:AppDelegate!
     var viewContext:NSManagedObjectContext!
@@ -121,8 +121,8 @@ class SettingsTableViewController: UITableViewController{
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
         print("aspect:\(aspect)")
-        bannerView.adSize = GADInlineAdaptiveBannerAdSizeWithWidthAndMaxHeight(viewWidth,50*aspect)
-        let request: GADRequest = GADRequest()
+        bannerView.adSize = inlineAdaptiveBanner(width: viewWidth,maxHeight: 50*aspect)
+        let request: Request = Request()
         bannerView.load(request)
     }
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -158,7 +158,7 @@ class SettingsTableViewController: UITableViewController{
 //        }
     }
     
-    func addBannerViewToView(_ bannerView: GADBannerView) {
+    func addBannerViewToView(_ bannerView: BannerView) {
         bannerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(bannerView)
         view.addConstraints(

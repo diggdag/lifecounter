@@ -21,7 +21,7 @@ class ViewController_image: UIViewController {
     var existNonCategorize = false
     
     weak var delegate: ChildViewControllerDelegate?
-    @IBOutlet var bannerView: GADBannerView!
+    @IBOutlet var bannerView: BannerView!
     
     @IBOutlet var bannerHeight: NSLayoutConstraint!
     override func viewDidLoad() {
@@ -96,8 +96,8 @@ class ViewController_image: UIViewController {
         let aspect = viewHeight/viewWidth
         print("aspect:\(aspect)")
         bannerHeight.constant=50*aspect
-        bannerView.adSize = GADInlineAdaptiveBannerAdSizeWithWidthAndMaxHeight(viewWidth,50*aspect)
-        let request: GADRequest = GADRequest()
+        bannerView.adSize = inlineAdaptiveBanner(width: viewWidth,maxHeight: 50*aspect)
+        let request: Request = Request()
         bannerView.load(request)
     }
     

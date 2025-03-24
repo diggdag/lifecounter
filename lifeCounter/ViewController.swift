@@ -12,7 +12,7 @@ import CoreData
 import GoogleMobileAds
 import AppTrackingTransparency
 
-class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINavigationControllerDelegate, ChildViewControllerDelegate,GADFullScreenContentDelegate{
+class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINavigationControllerDelegate, ChildViewControllerDelegate,FullScreenContentDelegate{
     func didPerformAction(from viewController: UIViewController) {
         setBackground_init()
         if viewController is SettingsTableViewController {
@@ -54,7 +54,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     var viewContext:NSManagedObjectContext!
     var countDownCnt:Countdown = Countdown.three
     
-    var interstitial: GADInterstitialAd?
+    var interstitial: InterstitialAd?
     
     let RADIUS:CGFloat = 20
     var screenRotate:Rotate = .normal
@@ -80,7 +80,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         if #available(iOS 13.0, *) {
             Task{
                 do{
-                    interstitial = try await GADInterstitialAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: GADRequest())
+                    interstitial = try await InterstitialAd.load(with: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: Request())
                     interstitial?.fullScreenContentDelegate = self
                 }
                 catch{
@@ -184,12 +184,12 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         if #available(iOS 14, *) {
             if ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
                 ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in
-                    GADMobileAds.sharedInstance().start(completionHandler: nil)
+                    MobileAds.shared.start(completionHandler: nil)
                 })
             }
         }
         else {
-            GADMobileAds.sharedInstance().start(completionHandler: nil)
+            MobileAds.shared.start(completionHandler: nil)
         }
     }
     
@@ -309,7 +309,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         }
 
         // The UIViewController parameter is an optional.
-        interstitial.present(fromRootViewController: nil)
+        interstitial.present(from: nil)
         refreshLife()
         //画面初期化
 //        screenInitialize(sender)
@@ -344,23 +344,23 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
 //        gameStatus = .ready
 //    }
     /// Tells the delegate that the ad failed to present full screen content.
-    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+    func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         print("Ad did fail to present full screen content.")
     }
 
     /// Tells the delegate that the ad will present full screen content.
-    func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+    func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
         print("Ad will present full screen content.")
     }
 
     /// Tells the delegate that the ad dismissed full screen content.
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+    func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
         print("Ad did dismiss full screen content.")
         print("インターステシャル広告を読み込み直すよ！使い捨てらしいからね！")
         if #available(iOS 13.0, *) {
             Task{
                 do{
-                    interstitial = try await GADInterstitialAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: GADRequest())
+                    interstitial = try await InterstitialAd.load(with: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: Request())
                     interstitial?.fullScreenContentDelegate = self
                 }
                 catch{

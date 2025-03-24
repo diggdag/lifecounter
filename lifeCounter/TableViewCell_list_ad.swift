@@ -8,7 +8,7 @@
 import UIKit
 import GoogleMobileAds
 class TableViewCell_list_ad: UITableViewCell {
-    @IBOutlet weak var ad: GADBannerView!
+    @IBOutlet weak var ad: BannerView!
     @IBOutlet weak var id: UILabel!
     func setCell(unitId:String,rootViewController:UIViewController) {
 //        if Consts.DEBUG_FLG {
@@ -16,6 +16,6 @@ class TableViewCell_list_ad: UITableViewCell {
 //        }
         ad.adUnitID = unitId
         ad.rootViewController = rootViewController
-        ad.load(GADRequest())
+        ad.load(Request())
     }
 }
