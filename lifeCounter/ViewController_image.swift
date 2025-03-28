@@ -122,6 +122,20 @@ class ViewController_image: UIViewController {
         //画像を追加するピッカーを起動する
         self.callPhotoLibrary()
     }
+    func dataUpdate_noItem(player1:Bool) {
+        for data in self.datas {
+            if player1 {
+                if data.player == 1 || data.player == 3 {
+                    data.player -= 1
+                }
+            }
+            else{
+                if data.player == 2 || data.player == 3 {
+                    data.player -= 2
+                }
+            }
+        }
+    }
 }
 ///////////////////////////
 ///extentions
@@ -138,12 +152,35 @@ extension ViewController_image:UITableViewDataSource{
             return cell
         }
         else{
-            let soineData: Background = datas[indexPath.row-1]
+            let background: Background = datas[indexPath.row-1]
             let cell: TableViewCell_list = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list") as! TableViewCell_list
-            let image:UIImage = soineData.picture == nil ? UIImage() : UIImage(data: soineData.picture!)!
-            cell.setCell(data: Data_list(category: image, scale: CGFloat(soineData.scale)))//\(String(soineData.id)):
+            let image:UIImage = background.picture == nil ? UIImage() : UIImage(data: background.picture!)!
+            let p1On = background.player == 1 || background.player == 3
+            let p2On = background.player == 2 || background.player == 3
+            var dataList = Data_list(category: image, scale: CGFloat(background.scale), p1: p1On, p2: p2On)
+            cell.setCell(data: dataList) { index, p1, p2 in
+                print("Row \(index) - player1: \(p1), player2: \(p2)")
+                let p1valueChanged = p1On == !p1
+                let p2valueChanged = p2On == !p2
+                print("p1On: \(p1On), p2On: \(p2On)")
+                print("p1valueChanged: \(p1valueChanged), p2valueChanged: \(p2valueChanged)")
+                if p1valueChanged{
+                    //一旦リセット
+                    self.dataUpdate_noItem(player1: true)
+                    background.player += 1
+                }
+                if p2valueChanged{
+                    //一旦リセット
+                    self.dataUpdate_noItem(player1: false)
+                    background.player += 2
+                }
+                self.tableView.reloadData()
+//                        self.dataList[index].p1 = p1
+//                        self.dataList[index].p2 = p2
+            }
             cell.backgroundColor = UIColor.clear
             cell.contentView.backgroundColor = UIColor.clear
+            
             return cell
         }
     }
@@ -209,7 +246,7 @@ extension ViewController_image:UITableViewDelegate{
                     var newPlayer = record.player
                     let pNum:Int16 = (p1selected ? 1 : 2)
                     let pNumReverse:Int32 = (p1selected ? 2 : 1)
-                    
+                    //0,1,2,3で扱っているっぽい
                     if record.id == datas[indexPath.row-1].id {
                         if record.player == 0{//nil
                             newPlayer += pNum
