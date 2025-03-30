@@ -373,58 +373,15 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         }
     }
     @IBAction func touchDown_image_settingBtn(_ sender: Any) {
-        let actionSheet: UIAlertController = UIAlertController(
-            title: NSLocalizedString("bgAlert_title", comment: ""),
-            message: NSLocalizedString("bgAlert_messsage", comment: ""),
-            preferredStyle: UIAlertController.Style.actionSheet)
-        actionSheet.addAction(
-            UIAlertAction(title: NSLocalizedString("bgAlert_button_set_1", comment: ""),style: .default, handler: {
-                (action: UIAlertAction!) -> Void in
-                ViewController.selected = .player1
-//                    self.callPhotoLibrary()
-                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                    guard let childVC = storyboard.instantiateViewController(withIdentifier: "ViewController_image") as? ViewController_image else {
-                        return
-                    }
-                    childVC.delegate = self
-                    self.present(childVC, animated: true, completion: nil)
-                    self.rotate_exec(rotate: .normal)
-            })
-        )
-        actionSheet.addAction(
-            UIAlertAction(title: NSLocalizedString("bgAlert_button_set_2", comment: ""), style: .default, handler: {
-                (action: UIAlertAction!) -> Void in
-                ViewController.selected = .player2
-//                self.callPhotoLibrary()
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                guard let childVC = storyboard.instantiateViewController(withIdentifier: "ViewController_image") as? ViewController_image else {
-                    return
-                }
-                childVC.delegate = self
-                self.present(childVC, animated: true, completion: nil)
-                self.rotate_exec(rotate: .normal)
-            })
-        )
-        actionSheet.addAction(
-            UIAlertAction(title: NSLocalizedString("bgAlert_button_del_1", comment: ""), style: .default, handler: {
-                (action: UIAlertAction!) -> Void in
-                self.deleteImg(player: Player.player1)
-                self.setBackground_init()
-            })
-        )
-        actionSheet.addAction(
-            UIAlertAction(title: NSLocalizedString("bgAlert_button_del_2", comment: ""), style: .default, handler: {
-                (action: UIAlertAction!) -> Void in
-                self.deleteImg(player: Player.player2)
-                self.setBackground_init()
-            })
-        )
-        actionSheet.addAction(
-            UIAlertAction(title: NSLocalizedString("bgAlert_button_cancel", comment: ""), style: .cancel, handler: nil)
-        )
-        actionSheet.popoverPresentationController?.sourceView = view
-        actionSheet.popoverPresentationController?.sourceRect = (sender as AnyObject).frame
-        present(actionSheet, animated: true, completion: nil)
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let childVC = storyboard.instantiateViewController(withIdentifier: "ViewController_image") as? ViewController_image else {
+            return
+        }
+        
+        childVC.modalPresentationStyle = .fullScreen
+        childVC.delegate = self
+        self.present(childVC, animated: true, completion: nil)
+        self.rotate_exec(rotate: .normal)
     }
     
     @IBAction func touchDown_setting(_ sender: Any) {

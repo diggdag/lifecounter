@@ -122,6 +122,8 @@ class ViewController_image: UIViewController {
         //画像を追加するピッカーを起動する
         self.callPhotoLibrary()
     }
+    //グローバル変数の画像の配列をアップデートする（画像が選択されていない状態にする）
+    //　player1:player1に選択されていない状態にしたい場合true
     func dataUpdate_noItem(player1:Bool) {
         for data in self.datas {
             if player1 {
@@ -135,6 +137,10 @@ class ViewController_image: UIViewController {
                 }
             }
         }
+    }
+    @IBAction func touchDown_apply(_ sender: Any) {
+        delegate?.didPerformAction(from: self)
+        self.dismiss(animated: true, completion: nil)
     }
 }
 ///////////////////////////
@@ -167,12 +173,16 @@ extension ViewController_image:UITableViewDataSource{
                 if p1valueChanged{
                     //一旦リセット
                     self.dataUpdate_noItem(player1: true)
-                    background.player += 1
+                    if p1 {
+                        background.player += 1
+                    }
                 }
                 if p2valueChanged{
                     //一旦リセット
                     self.dataUpdate_noItem(player1: false)
-                    background.player += 2
+                    if p2 {
+                        background.player += 2
+                    }
                 }
                 self.tableView.reloadData()
 //                        self.dataList[index].p1 = p1
@@ -235,55 +245,6 @@ extension ViewController_image:UITableViewDataSource{
     }
 }
 extension ViewController_image:UITableViewDelegate{
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
-        let request: NSFetchRequest<Background> = Background.fetchRequest()
-        let p1selected = (Player.player1 == ViewController.selected)
-        do {
-            let fetchResults = try viewContext.fetch(request)
-            if(fetchResults.count != 0){
-                for result: AnyObject in fetchResults {
-                    let record = result as! Background
-                    var newPlayer = record.player
-                    let pNum:Int16 = (p1selected ? 1 : 2)
-                    let pNumReverse:Int32 = (p1selected ? 2 : 1)
-                    //0,1,2,3で扱っているっぽい
-                    if record.id == datas[indexPath.row-1].id {
-                        if record.player == 0{//nil
-                            newPlayer += pNum
-                        }
-                        else if record.player == pNum{//me
-                        }
-                        else if record.player == pNumReverse{//you
-                            newPlayer = 3
-                        }
-                        else if record.player == 3{//both
-                        }
-                    }
-                    else{
-                        if record.player == 0{//nil
-                        }
-                        else if record.player == pNum{//me
-                            newPlayer -= pNum
-                        }
-                        else if record.player == pNumReverse{//you
-                        }
-                        else if record.player == 3{//both
-                            newPlayer -= pNum
-                        }
-                    }
-                    print("id:\(record.id) newPlayer:\(newPlayer)")
-                    record.setValue(newPlayer, forKey: "player")
-                    
-                    try viewContext.save()
-                }
-            }
-        } catch {
-        }
-        delegate?.didPerformAction(from: self)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.dismiss(animated: true, completion: nil)
-        }
-    }
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         return true
     }
