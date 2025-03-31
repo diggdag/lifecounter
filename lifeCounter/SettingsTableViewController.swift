@@ -432,6 +432,9 @@ class SettingsTableViewController: UITableViewController{
 ////        let indexPath = IndexPath(row: 5, section: 0)
 ////        tableView.reloadRows(at: [indexPath], with: .none)
 //    }
+    @IBAction func touchDown_close(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
+    }
     @IBAction func valueChanged_interval(_ sender: Any) {
         print("interval value : \(interval.value)")
         upperLifeP1 = Int(round(interval.value))

@@ -21,7 +21,6 @@ class ViewController_image: UIViewController {
     var existNonCategorize = false
     
     weak var delegate: ChildViewControllerDelegate?
-    @IBOutlet var bannerView: BannerView!
     
     @IBOutlet var bannerHeight: NSLayoutConstraint!
     override func viewDidLoad() {
@@ -55,10 +54,6 @@ class ViewController_image: UIViewController {
         
         // In this case, we instantiate the banner with desired ad size.
         //        settingAd()
-        //ad start
-        bannerView.adUnitID = Consts.ADMOB_UNIT_ID_BGSELECT
-        bannerView.rootViewController = self
-        //ad end
 //        bannerView.backgroundColor=UIColor.green
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -67,38 +62,11 @@ class ViewController_image: UIViewController {
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         viewContext = appDelegate.persistentContainer.viewContext
         refreshData()
-        //ad
-        loadBannerAd()
     }
     
     override func viewWillTransition(to size: CGSize,
                                      with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to:size, with:coordinator)
-        //ad start
-        coordinator.animate(alongsideTransition: { _ in
-            self.loadBannerAd()
-        })
-        //ad end
-    }
-    
-    //ad
-    func loadBannerAd() {
-        print("loadBannerAd called")
-        let frame = { () -> CGRect in
-            if #available(iOS 11.0, *) {
-                return view.frame.inset(by: view.safeAreaInsets)
-            } else {
-                return view.frame
-            }
-        }()
-        let viewWidth = frame.size.width
-        let viewHeight = frame.size.height
-        let aspect = viewHeight/viewWidth
-        print("aspect:\(aspect)")
-        bannerHeight.constant=50*aspect
-        bannerView.adSize = inlineAdaptiveBanner(width: viewWidth,maxHeight: 50*aspect)
-        let request: Request = Request()
-        bannerView.load(request)
     }
     func refreshData() {
         datas = []
@@ -206,7 +174,6 @@ extension ViewController_image:UITableViewDataSource{
             
             return cell
         }
-        //暫定
         else{
             
             let cell: TableViewCell_list_ad = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list_ad") as! TableViewCell_list_ad
