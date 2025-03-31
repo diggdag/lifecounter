@@ -186,35 +186,41 @@ extension ViewController_image:UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let swipeCell = UITableViewRowAction(style: .default, title: NSLocalizedString("deleteBtn_title", comment: "")) { (action: UITableViewRowAction, index: IndexPath) in
-            
-            let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
-            let viewContext = appDelegate.persistentContainer.viewContext
-            
-            let alert: UIAlertController = UIAlertController(title: NSLocalizedString("confirm_title", comment: ""),
-                                                             message: String(format: NSLocalizedString("confirm_sentence_delete", comment: "")),
-                                                             preferredStyle: UIAlertController.Style.alert)
-            let cancelAction: UIAlertAction = UIAlertAction(
-                title: "No",
-                style: UIAlertAction.Style.cancel,
-                handler: {
-                    (action: UIAlertAction!) -> Void in
-                }
-            )
-            let defaultAction: UIAlertAction = UIAlertAction(
-                title: "Yes",
-                style: UIAlertAction.Style.default,
-                handler: {
-                    (action: UIAlertAction!) -> Void in
-                    self.deleteItem(at: index)
-                }
-            )
-            alert.addAction(cancelAction)
-            alert.addAction(defaultAction)
-            self.present(alert, animated: true, completion: nil)
+        let background = self.datas[indexPath.row]
+        if background is Background {
+            let swipeCell = UITableViewRowAction(style: .default, title: NSLocalizedString("deleteBtn_title", comment: "")) { (action: UITableViewRowAction, index: IndexPath) in
+                
+                let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
+                let viewContext = appDelegate.persistentContainer.viewContext
+                
+                let alert: UIAlertController = UIAlertController(title: NSLocalizedString("confirm_title", comment: ""),
+                                                                 message: String(format: NSLocalizedString("confirm_sentence_delete", comment: "")),
+                                                                 preferredStyle: UIAlertController.Style.alert)
+                let cancelAction: UIAlertAction = UIAlertAction(
+                    title: "No",
+                    style: UIAlertAction.Style.cancel,
+                    handler: {
+                        (action: UIAlertAction!) -> Void in
+                    }
+                )
+                let defaultAction: UIAlertAction = UIAlertAction(
+                    title: "Yes",
+                    style: UIAlertAction.Style.default,
+                    handler: {
+                        (action: UIAlertAction!) -> Void in
+                        self.deleteItem(at: index)
+                    }
+                )
+                alert.addAction(cancelAction)
+                alert.addAction(defaultAction)
+                self.present(alert, animated: true, completion: nil)
+            }
+            swipeCell.backgroundColor = .red
+            return [swipeCell]
         }
-        swipeCell.backgroundColor = .red
-        return [swipeCell]
+        else{
+            return nil
+        }
     }
     func deleteItem(at indexPath: IndexPath) {
         let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -259,8 +265,13 @@ extension ViewController_image:UITableViewDelegate{
         return false
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            self.deleteItem(at: indexPath)
+        let background = self.datas[indexPath.row]
+
+        if background is Background {
+            
+            if editingStyle == .delete {
+                self.deleteItem(at: indexPath)
+            }
         }
     }
 }
