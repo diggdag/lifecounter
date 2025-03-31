@@ -14,7 +14,7 @@ import GoogleMobileAds
 class ViewController_image: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
-    var datas: [Background] = []
+    var datas: [Any] = []
     
     var appDelegate:AppDelegate!
     var viewContext:NSManagedObjectContext!
@@ -100,24 +100,39 @@ class ViewController_image: UIViewController {
         let request: Request = Request()
         bannerView.load(request)
     }
-    
     func refreshData() {
         datas = []
+        
         let request: NSFetchRequest<Background> = Background.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "id", ascending: false)
-        let sortDescriptors = [sortDescriptor]
-        request.sortDescriptors = sortDescriptors
+        request.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
         do {
             let fetchResults = try viewContext.fetch(request)
-            for result: AnyObject in fetchResults {
-                let soineData = result as! Background
-                datas.append(soineData)
-            }
-        } catch let e as NSError{
-            print("error !!! : \(e)")
+            datas.append(contentsOf: fetchResults) // Core Data のデータを取得
+        } catch {
+            print("error !!! : \(error)")
         }
+        
+        // 広告用データ（AdAccount の struct を使用）
+        let adBackground = AdAccount(name: "PR", adFlg: true)
+        
+        // 一定間隔ごとに広告を追加
+        var count = 0
+        var updatedDatas: [Any] = []
+        
+        updatedDatas.append(adBackground)
+        for data in datas {
+            updatedDatas.append(data)
+            count += 1
+            if count % Consts.LIST_AD_INTERVAL == 0 {
+                updatedDatas.append(adBackground)
+            }
+        }
+        
+        datas = updatedDatas
         tableView.reloadData()
     }
+
     @IBAction func touchDown_add(_ sender: Any) {
         //画像を追加するピッカーを起動する
         self.callPhotoLibrary()
@@ -126,14 +141,17 @@ class ViewController_image: UIViewController {
     //　player1:player1に選択されていない状態にしたい場合true
     func dataUpdate_noItem(player1:Bool) {
         for data in self.datas {
-            if player1 {
-                if data.player == 1 || data.player == 3 {
-                    data.player -= 1
+            if data is Background {
+                let _data = data as! Background
+                if player1 {
+                    if _data.player == 1 || _data.player == 3 {
+                        _data.player -= 1
+                    }
                 }
-            }
-            else{
-                if data.player == 2 || data.player == 3 {
-                    data.player -= 2
+                else{
+                    if _data.player == 2 || _data.player == 3 {
+                        _data.player -= 2
+                    }
                 }
             }
         }
@@ -148,17 +166,12 @@ class ViewController_image: UIViewController {
 /////////////////////////
 extension ViewController_image:UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return datas.count+1
+        return datas.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row==0 {
-            let cell: TableViewCell_list_ad = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list_ad") as! TableViewCell_list_ad
-            cell.setCell(unitId: Consts.ADMOB_UNIT_ID_BGSELECT, rootViewController: self)
-            return cell
-        }
-        else{
-            let background: Background = datas[indexPath.row-1]
+        if datas[indexPath.row] is Background {
+            let background: Background = datas[indexPath.row] as! Background
             let cell: TableViewCell_list = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list") as! TableViewCell_list
             let image:UIImage = background.picture == nil ? UIImage() : UIImage(data: background.picture!)!
             let p1On = background.player == 1 || background.player == 3
@@ -185,12 +198,19 @@ extension ViewController_image:UITableViewDataSource{
                     }
                 }
                 self.tableView.reloadData()
-//                        self.dataList[index].p1 = p1
-//                        self.dataList[index].p2 = p2
+                //                        self.dataList[index].p1 = p1
+                //                        self.dataList[index].p2 = p2
             }
             cell.backgroundColor = UIColor.clear
             cell.contentView.backgroundColor = UIColor.clear
             
+            return cell
+        }
+        //暫定
+        else{
+            
+            let cell: TableViewCell_list_ad = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list_ad") as! TableViewCell_list_ad
+            cell.setCell(unitId: Consts.ADMOB_UNIT_ID_BGSELECT, rootViewController: self)
             return cell
         }
     }
@@ -219,21 +239,7 @@ extension ViewController_image:UITableViewDataSource{
                 style: UIAlertAction.Style.default,
                 handler: {
                     (action: UIAlertAction!) -> Void in
-                    let request: NSFetchRequest<Background> = Background.fetchRequest()
-                    request.predicate = NSPredicate(format: "id = %d", self.datas[indexPath.row-1].id)
-                    do{
-                        let fetchResults = try viewContext.fetch(request)
-                        viewContext.delete(fetchResults[0])
-                        try viewContext.save()
-                    } catch let e as NSError{
-                        print("error !!! : \(e)")
-                    }
-                    
-                    let screenSizeWidth = UIScreen.main.bounds.width
-                    let screenSizeHeight = UIScreen.main.bounds.height
-                    self.view.makeToast("削除しました", point: CGPoint(x: screenSizeWidth/2, y: screenSizeHeight/2), title: nil, image: nil, completion: nil)
-                    
-                    self.refreshData()
+                    self.deleteItem(at: index)
                 }
             )
             alert.addAction(cancelAction)
@@ -243,6 +249,34 @@ extension ViewController_image:UITableViewDataSource{
         swipeCell.backgroundColor = .red
         return [swipeCell]
     }
+    func deleteItem(at indexPath: IndexPath) {
+        let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
+        let viewContext = appDelegate.persistentContainer.viewContext
+
+        let request: NSFetchRequest<Background> = Background.fetchRequest()
+        request.predicate = NSPredicate(format: "id = %d", (self.datas[indexPath.row] as! Background).id)
+
+        do {
+            let fetchResults = try viewContext.fetch(request)
+            if let target = fetchResults.first {
+                viewContext.delete(target)
+                try viewContext.save()
+            }
+        } catch let e as NSError {
+            print("error !!! : \(e)")
+        }
+
+        let screenSizeWidth = UIScreen.main.bounds.width
+        let screenSizeHeight = UIScreen.main.bounds.height
+        self.view.makeToast(NSLocalizedString("dialog_delete_finished", comment: ""),
+                            point: CGPoint(x: screenSizeWidth/2, y: screenSizeHeight/2),
+                            title: nil,
+                            image: nil,
+                            completion: nil)
+
+        refreshData()
+    }
+
 }
 extension ViewController_image:UITableViewDelegate{
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -259,21 +293,7 @@ extension ViewController_image:UITableViewDelegate{
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let request: NSFetchRequest<Background> = Background.fetchRequest()
-            request.predicate = NSPredicate(format: "id = %d", datas[indexPath.row-1].id)
-            do{
-                let fetchResults = try viewContext.fetch(request)
-                viewContext.delete(fetchResults[0])
-                try viewContext.save()
-            } catch let e as NSError{
-                print("error !!! : \(e)")
-            }
-            
-            let screenSizeWidth = UIScreen.main.bounds.width
-            let screenSizeHeight = UIScreen.main.bounds.height
-            self.view.makeToast(String(format: NSLocalizedString("dialog_delete_finished", comment: "")), point: CGPoint(x: screenSizeWidth/2, y: screenSizeHeight/2), title: nil, image: nil, completion: nil)
-            
-            refreshData()
+            self.deleteItem(at: indexPath)
         }
     }
 }
