@@ -72,13 +72,16 @@ class SettingsTableViewController: UITableViewController{
             let fetchResults = try viewContext.fetch(request)
             if let setting = fetchResults.first {
 //                screenRotate = Rotate(rawValue: setting.rotateDirection) ?? .normal
+                let step = Consts.SETTING_DEFAULT_LIFE_STEP
                 if setting.defaultLifeP1 != 0 {
-                    upperLifeP1 = Int(setting.defaultLifeP1)
+                    let roundedP1 = Int(round(Float(setting.defaultLifeP1) / step) * step)
+                    upperLifeP1 = roundedP1
                     intervalLabel.text = "\(upperLifeP1)"
                     interval.setValue(Float(upperLifeP1), animated: false)
                 }
                 if setting.defaultLifep2 != 0 {
-                    upperLifeP2 = Int(setting.defaultLifep2)
+                    let roundedP2 = Int(round(Float(setting.defaultLifep2) / step) * step)
+                    upperLifeP2 = roundedP2
                     intervalLabel2.text = "\(upperLifeP2)"
                     interval2.setValue(Float(upperLifeP2), animated: false)
                 }
@@ -436,16 +439,21 @@ class SettingsTableViewController: UITableViewController{
         self.dismiss(animated: true, completion: nil)
     }
     @IBAction func valueChanged_interval(_ sender: Any) {
-        print("interval value : \(interval.value)")
-        upperLifeP1 = Int(round(interval.value))
+        let step = Consts.SETTING_DEFAULT_LIFE_STEP
+        let roundedValue = round(interval.value / step) * step
+        interval.value = roundedValue // スライダーの見た目も補正
+        upperLifeP1 = Int(roundedValue)
         intervalLabel.text = "\(upperLifeP1)"
-//        interval.setValue(v, animated: false)
+        print("interval value (rounded to 10) : \(roundedValue)")
     }
+
     @IBAction func valueChanged_interval2(_ sender: Any) {
-        print("interval2 value : \(interval2.value)")
-        upperLifeP2 = Int(round(interval2.value))
+        let step = Consts.SETTING_DEFAULT_LIFE_STEP
+        let roundedValue = round(interval2.value / step) * step
+        interval2.value = roundedValue // スライダーの見た目も補正
+        upperLifeP2 = Int(roundedValue)
         intervalLabel2.text = "\(upperLifeP2)"
-//        interval.setValue(v, animated: false)
+        print("interval2 value (rounded to 10) : \(roundedValue)")
     }
     @IBAction func valueChanged_opacity(_ sender: Any) {
         print("interval2 value : \(interval3.value)")
