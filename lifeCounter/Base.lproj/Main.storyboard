@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N1f-fR-9MN" userLabel="verticalDummy">
-                                <rect key="frame" x="0.0" y="48" width="0.0" height="814"/>
+                                <rect key="frame" x="0.0" y="48" width="0.0" height="480"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" id="zgv-Gf-gwL"/>
@@ -32,40 +32,46 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fbG-LI-3X4" userLabel="p1bg">
-                                <rect key="frame" x="15" y="526" width="384" height="316.5"/>
+                                <rect key="frame" x="15" y="325.5" width="384" height="316.5"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="384" id="m2t-mB-kHw"/>
                                     <constraint firstAttribute="height" constant="316.5" id="rot-uu-WKI"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OXn-o0-U7l" userLabel="player1">
-                                <rect key="frame" x="0.0" y="536.5" width="414" height="325.5"/>
+                                <rect key="frame" x="0.0" y="336" width="414" height="192"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="20" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8pb-Yg-uZT" userLabel="life">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="325.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="192"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="150"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k2Y-n8-EWS" userLabel="minusBtn">
-                                        <rect key="frame" x="0.0" y="0.0" width="207" height="325.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="207" height="192"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal">
                                             <imageReference key="image" image="minus" catalog="system" symbolScale="large"/>
                                         </state>
                                         <connections>
+                                            <action selector="touchCancel_minusBtn1:" destination="BYZ-38-t0r" eventType="touchCancel" id="eL4-7s-8G9"/>
                                             <action selector="touchDown_minusBtn1:" destination="BYZ-38-t0r" eventType="touchDown" id="7Eb-CG-3Dm"/>
+                                            <action selector="touchUpInside_minusBtn1:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VJY-3m-5X6"/>
+                                            <action selector="touchUpOutside_minusBtn1:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="IfC-0t-nUy"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Zx-ZJ-7jJ" userLabel="plusBtn">
-                                        <rect key="frame" x="207" y="0.0" width="207" height="325.5"/>
+                                        <rect key="frame" x="207" y="0.0" width="207" height="192"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal">
                                             <imageReference key="image" image="plus" catalog="system" symbolScale="large"/>
                                         </state>
                                         <connections>
+                                            <action selector="touchCancel_plusBtn1:" destination="BYZ-38-t0r" eventType="touchCancel" id="zQh-K0-Irv"/>
                                             <action selector="touchDown_plusBtn1:" destination="BYZ-38-t0r" eventType="touchDown" id="Qjn-06-rb0"/>
+                                            <action selector="touchUpInside_plusBtn1:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dqM-F1-4xb"/>
+                                            <action selector="touchUpOutside_plusBtn1:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="Nvu-mc-ddf"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -84,39 +90,45 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="nsc-y7-PLC" userLabel="p2bg">
-                                <rect key="frame" x="15" y="82.5" width="384" height="362"/>
+                                <rect key="frame" x="15" y="-84.5" width="384" height="362"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="384" id="M9a-Gg-46z"/>
                                     <constraint firstAttribute="height" constant="362" id="cfu-Fr-br4"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2zP-ex-cmi" userLabel="player2">
-                                <rect key="frame" x="0.0" y="48" width="414" height="325.5"/>
+                                <rect key="frame" x="0.0" y="48" width="414" height="192"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="20" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8dy-MU-EOU" userLabel="life2">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="325.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="192"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="150"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k0P-wl-mSU" userLabel="minusBtn2">
-                                        <rect key="frame" x="0.0" y="0.0" width="207" height="325.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="207" height="192"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal">
                                             <imageReference key="image" image="minus" catalog="system" symbolScale="large"/>
                                         </state>
                                         <connections>
+                                            <action selector="touchCancel_minusBtn2:" destination="BYZ-38-t0r" eventType="touchCancel" id="Qni-eF-Iw8"/>
                                             <action selector="touchDown_minusBtn2:" destination="BYZ-38-t0r" eventType="touchDown" id="YpV-hT-eT1"/>
+                                            <action selector="touchUpInside_minusBtn2:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xhb-1q-0dY"/>
+                                            <action selector="touchUpOutside_minusBtn2:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="J3q-r7-KY8"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dg9-iZ-AV2" userLabel="plusBtn2">
-                                        <rect key="frame" x="207" y="0.0" width="207" height="325.5"/>
+                                        <rect key="frame" x="207" y="0.0" width="207" height="192"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal">
                                             <imageReference key="image" image="plus" catalog="system" symbolScale="large"/>
                                         </state>
                                         <connections>
+                                            <action selector="touchCancel_plusBtn2:" destination="BYZ-38-t0r" eventType="touchCancel" id="Hcg-aA-jgu"/>
                                             <action selector="touchDown_plusBtn2:" destination="BYZ-38-t0r" eventType="touchDown" id="Wzu-Eo-xfr"/>
+                                            <action selector="touchUpInside_plusBtn2:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dXW-04-3rX"/>
+                                            <action selector="touchUpOutside_plusBtn2:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="nZt-rk-Z3I"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -134,13 +146,13 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RGB-OH-td1" userLabel="middleView">
-                                <rect key="frame" x="0.0" y="444.5" width="414" height="81.5"/>
+                                <rect key="frame" x="0.0" y="277.5" width="414" height="48"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="pst-Ac-v53">
-                                        <rect key="frame" x="20" y="0.0" width="374" height="81.5"/>
+                                        <rect key="frame" x="20" y="0.0" width="374" height="48"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zca-e2-Ri9" userLabel="dice">
-                                                <rect key="frame" x="0.0" y="22.5" width="27.5" height="36"/>
+                                                <rect key="frame" x="0.0" y="6" width="27.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
@@ -151,7 +163,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2LD-kb-0oG" userLabel="imageSettingBtn">
-                                                <rect key="frame" x="81.5" y="22.5" width="30.5" height="36"/>
+                                                <rect key="frame" x="81.5" y="6" width="30.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
@@ -162,7 +174,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VZk-7z-KOc" userLabel="rotate">
-                                                <rect key="frame" x="166" y="22.5" width="24.5" height="36"/>
+                                                <rect key="frame" x="166" y="6" width="24.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
@@ -173,7 +185,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9HQ-SV-NgL" userLabel="settingBtn">
-                                                <rect key="frame" x="244.5" y="22.5" width="27.5" height="36"/>
+                                                <rect key="frame" x="244.5" y="6" width="27.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
@@ -184,7 +196,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TCC-Ub-C9Q" userLabel="clearBtn" customClass="CustomBtn" customModule="lifeCounter" customModuleProvider="target">
-                                                <rect key="frame" x="326" y="16.5" width="48" height="48"/>
+                                                <rect key="frame" x="326" y="0.0" width="48" height="48"/>
                                                 <state key="normal" image="restart"/>
                                                 <connections>
                                                     <action selector="touchDown_clearBtn:" destination="BYZ-38-t0r" eventType="touchDown" id="aD5-1g-SiI"/>

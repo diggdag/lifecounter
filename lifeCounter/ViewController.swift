@@ -436,19 +436,92 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         } catch {
         }
     }
-    
+    // PLUS BTN1 (Player 1)
     @IBAction func touchDown_plusBtn1(_ sender: Any) {
         lifeIncrement(.player1)
+        addOverlay(to: p1bg, side: .right)
     }
+    @IBAction func touchUpInside_plusBtn1(_ sender: Any) {
+        removeOverlay(from: p1bg)
+    }
+    @IBAction func touchUpOutside_plusBtn1(_ sender: Any) {
+        removeOverlay(from: p1bg)
+    }
+    @IBAction func touchCancel_plusBtn1(_ sender: Any) {
+        removeOverlay(from: p1bg)
+    }
+
+    // PLUS BTN2 (Player 2)
     @IBAction func touchDown_plusBtn2(_ sender: Any) {
         lifeIncrement(.player2)
+        addOverlay(to: p2bg, side: .right)
     }
+    @IBAction func touchUpInside_plusBtn2(_ sender: Any) {
+        removeOverlay(from: p2bg)
+    }
+    @IBAction func touchUpOutside_plusBtn2(_ sender: Any) {
+        removeOverlay(from: p2bg)
+    }
+    @IBAction func touchCancel_plusBtn2(_ sender: Any) {
+        removeOverlay(from: p2bg)
+    }
+
+    // MINUS BTN1 (Player 1)
     @IBAction func touchDown_minusBtn1(_ sender: Any) {
         lifeDecrement(.player1)
+        addOverlay(to: p1bg, side: .left)
     }
+    @IBAction func touchUpInside_minusBtn1(_ sender: Any) {
+        removeOverlay(from: p1bg)
+    }
+    @IBAction func touchUpOutside_minusBtn1(_ sender: Any) {
+        removeOverlay(from: p1bg)
+    }
+    @IBAction func touchCancel_minusBtn1(_ sender: Any) {
+        removeOverlay(from: p1bg)
+    }
+
+    // MINUS BTN2 (Player 2)
     @IBAction func touchDown_minusBtn2(_ sender: Any) {
         lifeDecrement(.player2)
+        addOverlay(to: p2bg, side: .left)
     }
+    @IBAction func touchUpInside_minusBtn2(_ sender: Any) {
+        removeOverlay(from: p2bg)
+    }
+    @IBAction func touchUpOutside_minusBtn2(_ sender: Any) {
+        removeOverlay(from: p2bg)
+    }
+    @IBAction func touchCancel_minusBtn2(_ sender: Any) {
+        removeOverlay(from: p2bg)
+    }
+
+
+    enum OverlaySide {
+        case left
+        case right
+    }
+
+    func addOverlay(to view: UIView, side: OverlaySide) {
+        // 既にオーバーレイがあれば追加しない
+        if view.viewWithTag(999) == nil {
+            let halfWidth = view.bounds.width / 2
+            let xPosition: CGFloat = (side == .left) ? 0 : halfWidth
+
+            let overlay = UIView(frame: CGRect(x: xPosition, y: 0, width: halfWidth, height: view.bounds.height))
+            let color = UITraitCollection.isDarkMode ? UIColor.black : UIColor.white
+            overlay.backgroundColor = color.withAlphaComponent(0.3)
+            overlay.tag = 999
+            view.addSubview(overlay)
+        }
+    }
+
+    func removeOverlay(from view: UIView) {
+        if let overlay = view.viewWithTag(999) {
+            overlay.removeFromSuperview()
+        }
+    }
+
     enum GameStatus{
         case ready
         case playing
