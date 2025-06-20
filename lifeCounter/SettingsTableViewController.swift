@@ -444,7 +444,7 @@ class SettingsTableViewController: UITableViewController{
         interval.value = roundedValue // スライダーの見た目も補正
         upperLifeP1 = Int(roundedValue)
         intervalLabel.text = "\(upperLifeP1)"
-        print("interval value (rounded to 10) : \(roundedValue)")
+//        print("interval value (rounded to 10) : \(roundedValue)")
     }
 
     @IBAction func valueChanged_interval2(_ sender: Any) {
@@ -453,10 +453,10 @@ class SettingsTableViewController: UITableViewController{
         interval2.value = roundedValue // スライダーの見た目も補正
         upperLifeP2 = Int(roundedValue)
         intervalLabel2.text = "\(upperLifeP2)"
-        print("interval2 value (rounded to 10) : \(roundedValue)")
+//        print("interval2 value (rounded to 10) : \(roundedValue)")
     }
     @IBAction func valueChanged_opacity(_ sender: Any) {
-        print("interval2 value : \(interval3.value)")
+//        print("interval2 value : \(interval3.value)")
         bgopacity = Float(round(interval3.value * 10) / 10)
         opacityLabel.text="\(bgopacity)"
     }
