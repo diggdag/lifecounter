@@ -18,10 +18,10 @@
 "DhT-jz-Ajp.text" = "20";
 
 /* Class = "UILabel"; text = "プレイヤー２"; ObjectID = "GhM-Bm-FBY"; */
-"GhM-Bm-FBY.text" = "プレイヤー２";
+"GhM-Bm-FBY.text" = "対戦相手";
 
 /* Class = "UILabel"; text = "プレイヤー１"; ObjectID = "Iky-vz-yRm"; */
-"Iky-vz-yRm.text" = "プレイヤー１";
+"Iky-vz-yRm.text" = "あなた";
 
 /* Class = "UIButton"; configuration.title = "Save"; ObjectID = "Jvy-Yt-Ape"; */
 "Jvy-Yt-Ape.configuration.title" = "Save";
