@@ -125,8 +125,16 @@ class ViewController_image: UIViewController {
         }
     }
     @IBAction func touchDown_apply(_ sender: Any) {
-        delegate?.didPerformAction(from: self)
-        self.dismiss(animated: true, completion: nil)
+        self.dismiss(animated: true) {
+            // ここで保存処理を呼ぶ
+            do {
+                try self.viewContext.save()
+            } catch {
+                print("save error!")
+            }
+
+            self.delegate?.didPerformAction(from: self)
+        }
     }
 }
 ///////////////////////////
@@ -375,6 +383,8 @@ extension ViewController_image:UIAdaptivePresentationControllerDelegate{
     // モーダルが閉じられたときに呼ばれるメソッド
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         print("モーダルビューが閉じられました")
+        print("ロールバックします")
+        viewContext.rollback()
         // ここで閉じられた後の処理を行う
         delegate?.didPerformAction(from: self)
     }

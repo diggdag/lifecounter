@@ -9,7 +9,7 @@ import UIKit
 class Consts {
     static let PLAYER1:Int16=0
     static let PLAYER2:Int16=1
-    static let LIST_AD_INTERVAL: Int = 2
+    static let LIST_AD_INTERVAL: Int = 5
     static let SETTING_DEFAULT_LIFE_STEP:Float=5
     static let FORMAT_DATE_HIS:String="yyyy/MM/dd' 'HH:mm"
 //    static let FORMAT_DATE_HIS:String="yyyy-MM-dd' 'HH:mm:ss"
