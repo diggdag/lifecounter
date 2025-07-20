@@ -17,7 +17,7 @@ class ViewController_history: UIViewController,UITableViewDelegate, UITableViewD
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var lifeflow_p1: UITextView!
     @IBOutlet weak var lifeflow_p2: UITextView!
-    @IBOutlet weak var bannerView: BannerView!
+    @IBOutlet weak var bannerView: GADBannerView!
     override func viewDidLoad() {
         super.viewDidLoad()
         //アド
@@ -34,11 +34,11 @@ class ViewController_history: UIViewController,UITableViewDelegate, UITableViewD
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
 //        print("banner view max height:"+(50*aspect).description)
-        let _bannerView: BannerView = BannerView(adSize: inlineAdaptiveBanner(width: viewWidth,maxHeight: 50*aspect))
+        let _bannerView: GADBannerView = GADBannerView(adSize: GADInlineAdaptiveBannerAdSizeWithWidthAndMaxHeight(viewWidth,50*aspect))
         _bannerView.adUnitID = Consts.ADMOB_UNIT_ID_MAIN
         _bannerView.rootViewController = self
         //AD : test device
-        let request: Request = Request()
+        let request: GADRequest = GADRequest()
 //        request.testDevices = [Consts.ADMOB_TEST_DEVICE_ID_SE2]
         _bannerView.load(request)
         bannerView.addSubview(_bannerView)
