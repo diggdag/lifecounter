@@ -9,7 +9,7 @@ import UIKit
 class Consts {
     static let PLAYER1:Int16=0
     static let PLAYER2:Int16=1
-    static let LIST_AD_INTERVAL: Int = 5
+    static let LIST_AD_INTERVAL: Int = 3
     static let SETTING_DEFAULT_LIFE_STEP:Float=5
     static let FORMAT_DATE_HIS:String="yyyy/MM/dd' 'HH:mm"
 //    static let FORMAT_DATE_HIS:String="yyyy-MM-dd' 'HH:mm:ss"
@@ -19,6 +19,7 @@ class Consts {
     static let ADMOB_UNIT_ID_MAIN: String = "ca-app-pub-5418872710464793/5128065062"
     static let ADMOB_UNIT_ID_BGSELECT: String = "ca-app-pub-5418872710464793/6190902703"
     static let ADMOB_UNIT_ID_SETTING: String = "ca-app-pub-5418872710464793/8292371957"
+    static let ADMOB_UNIT_ID_LIST_NATIVE: String = "ca-app-pub-5418872710464793/4776598154"
     
     //テスト広告
 //    static let ADMOB_UNIT_ID_MAIN: String = "ca-app-pub-3940256099942544/6300978111"
@@ -32,4 +33,5 @@ class Consts {
 struct AdAccount {
     let name: String
     let adFlg: Bool
+    var adIndex : Int?
 }

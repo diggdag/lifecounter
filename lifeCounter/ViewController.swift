@@ -377,8 +377,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         guard let childVC = storyboard.instantiateViewController(withIdentifier: "ViewController_image") as? ViewController_image else {
             return
         }
-        
-//        childVC.modalPresentationStyle = .fullScreen
+        print("presenting \(childVC)")
+        childVC.modalPresentationStyle = .fullScreen
         childVC.delegate = self
         self.present(childVC, animated: true, completion: nil)
         self.rotate_exec(rotate: .normal)

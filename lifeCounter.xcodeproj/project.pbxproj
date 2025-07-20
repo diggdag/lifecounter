@@ -31,6 +31,7 @@
 		CF8CAB582C1D8D7F00ADED09 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8CAB572C1D8D7F00ADED09 /* Enums.swift */; };
 		CF8CAB5A2C1EB93A00ADED09 /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8CAB592C1EB93A00ADED09 /* AppManager.swift */; };
 		CF95C4672E2CB087001EDC24 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF95C4662E2CB087001EDC24 /* Foundation.framework */; };
+		CF95C4692E2CB4C1001EDC24 /* NativeAdTableViewCell 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF95C4682E2CB4C1001EDC24 /* NativeAdTableViewCell 2.swift */; };
 		CFC02F3B22A681A000DACEC8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC02F3A22A681A000DACEC8 /* AppDelegate.swift */; };
 		CFC02F3D22A681A000DACEC8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC02F3C22A681A000DACEC8 /* ViewController.swift */; };
 		CFC02F4022A681A000DACEC8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CFC02F3E22A681A000DACEC8 /* Main.storyboard */; };
@@ -371,6 +372,7 @@
 		CF8CAB572C1D8D7F00ADED09 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		CF8CAB592C1EB93A00ADED09 /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		CF95C4662E2CB087001EDC24 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		CF95C4682E2CB4C1001EDC24 /* NativeAdTableViewCell 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NativeAdTableViewCell 2.swift"; sourceTree = "<group>"; };
 		CFA6872B2C15A37F00D0D049 /* GoogleMobileAds.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleMobileAds.xcframework; path = "Pods/Google-Mobile-Ads-SDK/Frameworks/GoogleMobileAdsFramework/GoogleMobileAds.xcframework"; sourceTree = "<group>"; };
 		CFC02F3722A681A000DACEC8 /* lifeCounter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = lifeCounter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFC02F3A22A681A000DACEC8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -1269,6 +1271,7 @@
 		CFC02F3922A681A000DACEC8 /* lifeCounter */ = {
 			isa = PBXGroup;
 			children = (
+				CF95C4682E2CB4C1001EDC24 /* NativeAdTableViewCell 2.swift */,
 				CFD7AC392C2571AD0070859C /* TableViewCell_list_ad.swift */,
 				CF8CAB552C1D49D700ADED09 /* TableViewCell_list.swift */,
 				CF8CAB532C1D479400ADED09 /* ViewController_image.swift */,
@@ -1526,6 +1529,7 @@
 				CF0E1DB726BE488D00611194 /* Background+CoreDataProperties.swift in Sources */,
 				CF8CAB502C1A7E0600ADED09 /* SettingsTableViewController.swift in Sources */,
 				CF152F0026CB541B003A7D6C /* Extentions.swift in Sources */,
+				CF95C4692E2CB4C1001EDC24 /* NativeAdTableViewCell 2.swift in Sources */,
 				CF0A71B426FD862500BA3769 /* Life+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
