@@ -18,3 +18,6 @@ class TableViewCell_list_ad: UITableViewCell {
         ad.load(GADRequest())
     }
 }
+class TableViewCell_list_ad_dummy: UITableViewCell {
+    
+}

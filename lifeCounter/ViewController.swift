@@ -378,7 +378,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             return
         }
         print("presenting \(childVC)")
-        childVC.modalPresentationStyle = .fullScreen
+//        childVC.modalPresentationStyle = .fullScreen
         childVC.delegate = self
         self.present(childVC, animated: true, completion: nil)
         self.rotate_exec(rotate: .normal)

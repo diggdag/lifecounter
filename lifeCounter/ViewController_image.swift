@@ -223,8 +223,7 @@ extension ViewController_image:UITableViewDataSource{
             //            let adIndex = indexPath.row / Consts.LIST_AD_INTERVAL
             guard nativeAds.count > 0 else {
                 // 広告が0件なら fallback 表示に逃げる
-                let cell: TableViewCell_list_ad = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list_ad") as! TableViewCell_list_ad
-                cell.setCell(unitId: Consts.ADMOB_UNIT_ID_BGSELECT, rootViewController: self)
+                let cell: TableViewCell_list_ad_dummy = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list_ad_dummy") as! TableViewCell_list_ad_dummy
                 return cell
             }
             let adIndex = ((datas[indexPath.row]) as! AdAccount).adIndex! % nativeAds.count
