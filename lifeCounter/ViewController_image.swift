@@ -9,7 +9,6 @@ import UIKit
 import Photos
 import CoreData
 import Toast_Swift
-import GoogleMobileAds
 
 class ViewController_image: UIViewController {
     
@@ -19,12 +18,9 @@ class ViewController_image: UIViewController {
     var appDelegate:AppDelegate!
     var viewContext:NSManagedObjectContext!
     var existNonCategorize = false
-    var adLoader: GADAdLoader!
-    var nativeAds: [GADNativeAd] = []
     
     weak var delegate: ChildViewControllerDelegate?
     
-    @IBOutlet var bannerHeight: NSLayoutConstraint!
     override func viewDidLoad() {
         super.viewDidLoad()
         print("ViewController viewDidLoad")
@@ -68,37 +64,10 @@ class ViewController_image: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("viewDidAppear called, loading banner ad")
-        //ad
-        loadBannerAd()
     }
     override func viewWillTransition(to size: CGSize,
                                      with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to:size, with:coordinator)
-        coordinator.animate(alongsideTransition: { _ in
-            self.loadBannerAd()
-        })
-    }
-    //ad
-    func loadBannerAd() {
-        let frame = { () -> CGRect in
-        if #available(iOS 11.0, *) {
-            return view.frame.inset(by: view.safeAreaInsets)
-        } else {
-            return view.frame
-        }
-        }()
-        
-        let options = GADMultipleAdsAdLoaderOptions()
-//        options.numberOfAds = flatIndex/Consts.LIST_AD_INTERVAL
-        options.numberOfAds = Consts.LIST_AD_INTERVAL
-        
-        adLoader = GADAdLoader(adUnitID: Consts.ADMOB_UNIT_ID_LIST_NATIVE,
-                               rootViewController: self,
-                               adTypes: [.native],
-                               options: [options])
-        adLoader.delegate = self
-        adLoader.load(GADRequest())
     }
     func refreshData() {
         datas = []
@@ -112,29 +81,6 @@ class ViewController_image: UIViewController {
         } catch {
             print("error !!! : \(error)")
         }
-        
-        
-        // 一定間隔ごとに広告を追加
-        var count = 0
-        var adCounter = 0
-        var updatedDatas: [Any] = []
-        
-        //0番目にいれるか
-//        updatedDatas.append(adBackground)
-        
-        for data in datas {
-            updatedDatas.append(data)
-            if (count + 1) % Consts.LIST_AD_INTERVAL == 0 {
-                
-                // 広告用データ（AdAccount の struct を使用）
-                let adBackground = AdAccount(name: "PR", adFlg: true,adIndex: adCounter)
-                updatedDatas.append(adBackground)
-                adCounter += 1
-            }
-            count += 1
-        }
-        
-        datas = updatedDatas
         tableView.reloadData()
     }
 
@@ -183,7 +129,6 @@ extension ViewController_image:UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if datas[indexPath.row] is Background {
             let background: Background = datas[indexPath.row] as! Background
             let cell: TableViewCell_list = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list") as! TableViewCell_list
             let image:UIImage = background.picture == nil ? UIImage() : UIImage(data: background.picture!)!
@@ -218,27 +163,6 @@ extension ViewController_image:UITableViewDataSource{
             cell.contentView.backgroundColor = UIColor.clear
             
             return cell
-        }
-        else{
-            //            let adIndex = indexPath.row / Consts.LIST_AD_INTERVAL
-            guard nativeAds.count > 0 else {
-                // 広告が0件なら fallback 表示に逃げる
-                let cell: TableViewCell_list_ad_dummy = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list_ad_dummy") as! TableViewCell_list_ad_dummy
-                return cell
-            }
-            let adIndex = ((datas[indexPath.row]) as! AdAccount).adIndex! % nativeAds.count
-            //            print("[Apli log] nativeAds.count:\(nativeAds.count)")
-            if let ad = nativeAds[safe: adIndex] {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "AdCell2", for: indexPath) as! NativeAdTableViewCell2
-                cell.bind(ad: ad, memo: String(adIndex))
-                //                print("[Apli log] safe adIndex:\(adIndex) section:\(indexPath.section) row:\(indexPath.row)")
-                return cell
-            } else {
-                let cell: TableViewCell_list_ad = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list_ad") as! TableViewCell_list_ad
-                cell.setCell(unitId: Consts.ADMOB_UNIT_ID_BGSELECT, rootViewController: self)
-                return cell
-            }
-        }
     }
     func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
         return index
@@ -438,18 +362,6 @@ extension ViewController_image:UIAdaptivePresentationControllerDelegate{
         viewContext.rollback()
         // ここで閉じられた後の処理を行う
         delegate?.didPerformAction(from: self)
-    }
-}
-
-extension ViewController_image: GADNativeAdLoaderDelegate {
-    func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: any Error) {
-        print("Failed to load ad: \(error.localizedDescription)")
-    }
-    
-    func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
-//        self.nativeAd = nativeAd
-        nativeAds.append(nativeAd)
-        tableView.reloadData() // リロードして表示
     }
 }
 
