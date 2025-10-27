@@ -647,55 +647,45 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
 //            }
 //        }
 //    }
-    func settingBackground(playerView : inout UIView, setImage : UIImage,scale:CGFloat,initial:Bool = false,bgopacity:CGFloat)  {
-        print("settingBackground bgopacity:\(bgopacity)")
-        let imageView = UIImageView(image:setImage)
-        imageView.alpha = bgopacity
-        // 画像の縦横サイズを取得
-        let imgWidth:CGFloat = setImage.size.width
-        let imgHeight:CGFloat = setImage.size.height
-        
-        
-        print("scale:\(scale)")
-        let rect:CGRect = CGRect(x:0, y:0, width:imgWidth*scale, height:imgHeight*scale)
-        
-        
-//        print("pre top margin: \(p1bgtopmargin.constant)")
-//        print("  verticalDummy.frame.height: \(verticalDummy.frame.height)")
-//        print("  middleView.frame.height: \(middleView.frame.height)")
-////        print("  p1bg.frame.width: \(p1bg.frame.width)")
-////        print("  p1bg.frame.height: \(p1bg.frame.height)")
-////        print("  imgWidth: \(imgWidth)")
-////        print("  imgHeight: \(imgHeight)")
-//        print("  rect.width: \(rect.width)")
-//        print("  rect.height: \(rect.height)")
-////            print("  minDimension: \(minDimension)")
-////        print("  work: \((verticalDummy.frame.height - middleView.frame.height)/2 - p1bg.frame.height)")
-////        p1bgtopmargin.constant = ((verticalDummy.frame.height - middleView.frame.height)/2 - rect.height)/2
-//        p1bgtopmargin.constant = max(rect.width,rect.height) - min(rect.width,rect.height)
-//        print("aft top margin: \(p1bgtopmargin.constant)")
-        
-        // ImageView frame をCGRectで作った矩形に合わせる
-        imageView.frame = rect;
-        // UIImageViewのインスタンスをビューに追加
-        imageView.tag = 100
-        //画像のviewを削除
-        if let viewWithTag = playerView.viewWithTag(100){
-            viewWithTag.removeFromSuperview()
-        }
-        if playerView.subviews.count == 0 {
+    func settingBackground(playerView: inout UIView,
+                           setImage: UIImage,
+                           scale: CGFloat,
+                           initial: Bool = false,
+                           bgopacity: CGFloat) {
+        // 既存の背景UIImageViewを再利用 or 新規作成
+        let imageView: UIImageView
+        if let iv = playerView.viewWithTag(100) as? UIImageView {
+            imageView = iv
+        } else {
+            imageView = UIImageView()
+            imageView.tag = 100
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.clipsToBounds = true
+            imageView.contentMode = .scaleAspectFill // ← 余白をなくして全面表示
             playerView.addSubview(imageView)
+            NSLayoutConstraint.activate([
+                imageView.leadingAnchor.constraint(equalTo: playerView.leadingAnchor),
+                imageView.trailingAnchor.constraint(equalTo: playerView.trailingAnchor),
+                imageView.topAnchor.constraint(equalTo: playerView.topAnchor),
+                imageView.bottomAnchor.constraint(equalTo: playerView.bottomAnchor)
+            ])
         }
-        else{
-            var b:Bool = true
-            for subView in playerView.subviews{
-                if b{
-                    playerView.addSubview(imageView)
-                    b=false
-                }
-                playerView.addSubview(subView)
-            }
-        }
+
+        // 画像と透過度を設定
+        imageView.alpha = bgopacity
+        imageView.image = setImage
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .clear            // 余白は透過に
+        playerView.backgroundColor = .systemBackground // 親側を動的カラーに（ライト/ダーク自動追従）
+        // 背景ビュー全体に角丸を適用
+        let RADIUS: CGFloat = 16 // ← 角丸半径（必要に応じて調整）
+        playerView.layer.cornerRadius = RADIUS
+        playerView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = RADIUS
+        imageView.clipsToBounds = true
+
+        // レイアウトを即時反映
+        playerView.layoutIfNeeded()
     }
     
     func getDiceNum(type:DiceType) -> Int16 {
