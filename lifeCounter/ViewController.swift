@@ -14,6 +14,7 @@ import AppTrackingTransparency
 
 class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINavigationControllerDelegate, ChildViewControllerDelegate,GADFullScreenContentDelegate{
     func didPerformAction(from viewController: UIViewController) {
+        print("didPerformAction called!!")
         setBackground_init()
         if viewController is SettingsTableViewController {
             if SettingsTableViewController.defaultLifeChanged {
@@ -37,6 +38,9 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @IBOutlet var bgwidthp2: NSLayoutConstraint!
     @IBOutlet var bgHeightp1: NSLayoutConstraint!
     @IBOutlet var bgHeightp2: NSLayoutConstraint!
+    @IBOutlet weak var p1bgtopmargin: NSLayoutConstraint!
+    @IBOutlet weak var middleView: UIView!
+    @IBOutlet weak var verticalDummy: UIView!
     var lifeflow_lifes = [[Int]]()
     
     var _life1 :Int=20
@@ -254,6 +258,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 
                     print("bunki 2")
             }
+            
+            
             self.settingBackground(playerView: &p1bg, setImage: player1Img ?? UIImage(),scale: scale1,initial: true,bgopacity: self.bgopacity)
             self.settingBackground(playerView: &p2bg, setImage: player2Img ?? UIImage(),scale: scale2,initial: true,bgopacity: self.bgopacity)
         } catch {
@@ -649,8 +655,26 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         let imgWidth:CGFloat = setImage.size.width
         let imgHeight:CGFloat = setImage.size.height
         
+        
         print("scale:\(scale)")
         let rect:CGRect = CGRect(x:0, y:0, width:imgWidth*scale, height:imgHeight*scale)
+        
+        
+//        print("pre top margin: \(p1bgtopmargin.constant)")
+//        print("  verticalDummy.frame.height: \(verticalDummy.frame.height)")
+//        print("  middleView.frame.height: \(middleView.frame.height)")
+////        print("  p1bg.frame.width: \(p1bg.frame.width)")
+////        print("  p1bg.frame.height: \(p1bg.frame.height)")
+////        print("  imgWidth: \(imgWidth)")
+////        print("  imgHeight: \(imgHeight)")
+//        print("  rect.width: \(rect.width)")
+//        print("  rect.height: \(rect.height)")
+////            print("  minDimension: \(minDimension)")
+////        print("  work: \((verticalDummy.frame.height - middleView.frame.height)/2 - p1bg.frame.height)")
+////        p1bgtopmargin.constant = ((verticalDummy.frame.height - middleView.frame.height)/2 - rect.height)/2
+//        p1bgtopmargin.constant = max(rect.width,rect.height) - min(rect.width,rect.height)
+//        print("aft top margin: \(p1bgtopmargin.constant)")
+        
         // ImageView frame をCGRectで作った矩形に合わせる
         imageView.frame = rect;
         // UIImageViewのインスタンスをビューに追加
