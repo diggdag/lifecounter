@@ -547,6 +547,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         case normal = 0
         case left = 1
         case right = 2
+        case bothFacing  = 3
     }
     func lifeIncrement(_ p:Player){
         switch p {
@@ -718,21 +719,17 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @IBAction func touchDown_rotate(_ sender: Any) {
         print("touchDown_rotate called!screenRotate(before):\(screenRotate)")
         
-        if Rotate.normal == screenRotate {
-            //leftにする
+        switch screenRotate {
+        case .normal:
             screenRotate = .left
-            rotate_exec(rotate: .left)
-        }
-        else if Rotate.left == screenRotate {
-            //rightにする
+        case .left:
             screenRotate = .right
-            rotate_exec(rotate: .right)
-        }
-        else if Rotate.right == screenRotate {
-            //normalにする
+        case .right:
+            screenRotate = .bothFacing   // ★ 追加状態へ
+        case .bothFacing:
             screenRotate = .normal
-            rotate_exec(rotate: .normal)
         }
+        rotate_exec(rotate: screenRotate)
         let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
         let viewContext = appDelegate.persistentContainer.viewContext
         let request: NSFetchRequest<Setting> = Setting.fetchRequest()
@@ -762,16 +759,23 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     func rotate_exec(rotate: Rotate)  {
         print("rotate_exec called!\(rotate.rawValue)")
-        var rotatep1 = CGFloat(0)
-        var rotatep2 = CGFloat(Double.pi)
         
-        if Rotate.left == rotate {
-            rotatep1 = CGFloat(Double.pi/2)
-            rotatep2 = CGFloat(Double.pi/2)
-        }
-        else if Rotate.right == rotate {
-            rotatep1 = CGFloat(Double.pi/2*3)
-            rotatep2 = CGFloat(Double.pi/2*3)
+        var rotatep1: CGFloat = 0         // 自分
+        var rotatep2: CGFloat = .pi       // 相手（normal は向かい合わせ）
+        
+        switch rotate {
+        case .normal:
+            rotatep1 = 0
+            rotatep2 = .pi                // 既存
+        case .left:
+            rotatep1 = .pi/2
+            rotatep2 = .pi/2
+        case .right:
+            rotatep1 = .pi*3/2
+            rotatep2 = .pi*3/2
+        case .bothFacing:
+            rotatep1 = 0
+            rotatep2 = 0                  // ★ どちらもこちら向き
         }
         
         player1view.transform=CGAffineTransform(rotationAngle: rotatep1)
