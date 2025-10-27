@@ -63,10 +63,12 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     let RADIUS:CGFloat = 20
     var screenRotate:Rotate = .normal
     var bgopacity:CGFloat = 0.8
-    
+    var rewardedAd: GADRewardedAd?
+    var canOpenBackgroundSetting = false
+    private var earnedRewardPendingOpen = false   // ← 視聴完了後、閉じたら遷移するための一時フラグ
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        loadRewardedAd()
         let minDimension = min(p1bg.frame.width, p1bg.frame.height)
         bgwidthp1.constant = minDimension
         bgHeightp1.constant = minDimension
@@ -211,6 +213,36 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
         print("aspect:\(aspect)")
+    }
+    func loadRewardedAd() {
+        Task {
+            do {
+                rewardedAd = try await GADRewardedAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_REWARD, request: GADRequest())
+                rewardedAd?.fullScreenContentDelegate = self
+                print("✅ Rewarded ad loaded successfully")
+            } catch {
+                print("❌ Failed to load rewarded ad: \(error.localizedDescription)")
+            }
+        }
+    }
+    func showRewardedAd() {
+        guard let rewardedAd = rewardedAd else {
+            print("❌ Rewarded ad not ready")
+            loadRewardedAd()
+            // UX向上：未準備メッセージ（任意）
+            let a = UIAlertController(title: "広告の準備中", message: "しばらくしてからもう一度お試しください。", preferredStyle: .alert)
+            a.addAction(UIAlertAction(title: "OK", style: .default))
+            present(a, animated: true)
+            return
+        }
+        rewardedAd.present(fromRootViewController: self) {
+            let reward = rewardedAd.adReward
+            print("✅ User earned reward: \(reward.amount) \(reward.type)")
+            
+            // ここでは遷移せず、閉じられてから実行する
+            self.canOpenBackgroundSetting = true
+            self.earnedRewardPendingOpen = true
+        }
     }
     @objc func notificationFunc_pushhome(notification: NSNotification?) {
         print("called! notificationFunc_pushhome")
@@ -358,36 +390,49 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Ad will present full screen content.")
     }
-
-    /// Tells the delegate that the ad dismissed full screen content.
+    
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-        print("Ad did dismiss full screen content.")
-        print("インターステシャル広告を読み込み直すよ！使い捨てらしいからね！")
-        if #available(iOS 13.0, *) {
-            Task{
-                do{
-                    interstitial = try await GADInterstitialAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: GADRequest())
-                    interstitial?.fullScreenContentDelegate = self
-                }
-                catch{
-                    print("Failed to load interstitial ad with error: \(error.localizedDescription)")
+        print("Ad dismissed. Reloading ads...")
+        if ad is GADRewardedAd {
+            loadRewardedAd()
+            
+            // 視聴完了していれば、閉じたあとに解放ダイアログを出してから遷移
+            if earnedRewardPendingOpen && canOpenBackgroundSetting {
+                earnedRewardPendingOpen = false
+                let done = UIAlertController(
+                    title: "背景設定が解放されました",
+                    message: "背景設定画面に進みます。",
+                    preferredStyle: .alert
+                )
+                done.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                    self.canOpenBackgroundSetting = false
+                    self.openBackgroundSetting()
+                }))
+                present(done, animated: true)
+            }
+        } else if ad is GADInterstitialAd {
+            Task {
+                do {
+                    self.interstitial = try await GADInterstitialAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: GADRequest())
+                    self.interstitial?.fullScreenContentDelegate = self
+                } catch {
+                    print("Failed to reload interstitial: \(error.localizedDescription)")
                 }
             }
-        } else {
-            // Fallback on earlier versions
-            print("ロードしない")//バグの素
         }
     }
     @IBAction func touchDown_image_settingBtn(_ sender: Any) {
+        showRewardedAdWithDialog()
+    }
+
+    private func openBackgroundSetting() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         guard let childVC = storyboard.instantiateViewController(withIdentifier: "ViewController_image") as? ViewController_image else {
             return
         }
-        print("presenting \(childVC)")
-//        childVC.modalPresentationStyle = .fullScreen
         childVC.delegate = self
-        self.present(childVC, animated: true, completion: nil)
-        self.rotate_exec(rotate: .normal)
+        present(childVC, animated: true, completion: nil)
+        rotate_exec(rotate: .normal)
     }
     
     @IBAction func touchDown_setting(_ sender: Any) {
@@ -785,6 +830,25 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         
         // フレームの再計算
         updateFramesForRotation()
+    }
+    private func showRewardedAdWithDialog() {
+        // すでに解放トークンがあればそのまま遷移
+        if canOpenBackgroundSetting {
+            canOpenBackgroundSetting = false
+            openBackgroundSetting()
+            return
+        }
+        // 事前告知
+        let alert = UIAlertController(
+            title: "背景設定の解放",
+            message: "広告を視聴すると、背景設定画面に1回だけ進めます。よろしいですか？",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        alert.addAction(UIAlertAction(title: "視聴する", style: .default, handler: { _ in
+            self.showRewardedAd()
+        }))
+        present(alert, animated: true)
     }
     /// iPhone SE(2nd/3rd) / iPhone 8 相当の 750×1334px 端末か判定
     private func isSE2Size() -> Bool {
