@@ -674,9 +674,16 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         // 画像と透過度を設定
         imageView.alpha = bgopacity
         imageView.image = setImage
-        imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = .clear            // 余白は透過に
-        playerView.backgroundColor = .systemBackground // 親側を動的カラーに（ライト/ダーク自動追従）
+        if isSE2Size() {
+            imageView.contentMode = .scaleAspectFit
+            imageView.backgroundColor = .clear
+            // SE2サイズのときだけ余白を動的カラー、それ以外は透明（＝黒/白切替の影響を受けない）
+            playerView.backgroundColor = .systemBackground
+        }else {
+            imageView.contentMode = .scaleAspectFill
+            imageView.backgroundColor = .clear
+            playerView.backgroundColor = .clear
+        }
         // 背景ビュー全体に角丸を適用
         let RADIUS: CGFloat = 16 // ← 角丸半径（必要に応じて調整）
         playerView.layer.cornerRadius = RADIUS
@@ -775,7 +782,18 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         // フレームの再計算
         updateFramesForRotation()
     }
-
+    /// iPhone SE(2nd/3rd) / iPhone 8 相当の 750×1334px 端末か判定
+    private func isSE2Size() -> Bool {
+        // portrait/landscape どちらでもOKなように max/min で比較
+        let b = UIScreen.main.bounds
+        let scale = UIScreen.main.scale
+        let nativeW = Int(max(b.width, b.height) * scale)
+        let nativeH = Int(min(b.width, b.height) * scale)
+        // 750x1334（または逆）に近ければtrue（誤差±2px許容）
+        let a = (abs(nativeW - 1334) <= 2 && abs(nativeH - 750) <= 2)
+        let b2 = (abs(nativeW - 750)  <= 2 && abs(nativeH - 1334) <= 2)
+        return a || b2
+    }
     func updateFramesForRotation() {
         let player1Frame = player1view.frame
         let player2Frame = player2view.frame
