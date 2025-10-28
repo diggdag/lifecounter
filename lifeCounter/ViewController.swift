@@ -66,8 +66,23 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     var rewardedAd: GADRewardedAd?
     var canOpenBackgroundSetting = false
     private var earnedRewardPendingOpen = false   // ← 視聴完了後、閉じたら遷移するための一時フラグ
+    // --- install-day skip (reward off on install day) ---
+    private let kInstallDateKey = "installDate"
+
+    private func ensureInstallDateSaved() {
+        // まだ保存されていなければ現在時刻を保存（初回起動時のみ）
+        let ud = UserDefaults.standard
+        if ud.object(forKey: kInstallDateKey) == nil {
+            ud.set(Date(), forKey: kInstallDateKey)
+            ud.synchronize()
+            print("🗓️ Saved installDate = \(Date())")
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        // ← 追加：インストール日時を確定させる
+        ensureInstallDateSaved()
         loadRewardedAd()
         let minDimension = min(p1bg.frame.width, p1bg.frame.height)
         bgwidthp1.constant = minDimension
@@ -213,6 +228,24 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
         print("aspect:\(aspect)")
+    }
+    // --- install-day grace window (DEBUG: 60s / RELEASE: 24h) ---
+    private var installGraceSeconds: TimeInterval {
+        #if DEBUG
+        return 60                  // デバッグ時は 1分
+        #else
+        return 12 * 60 * 60        // リリース時は 12時間
+        #endif
+    }
+
+    private func isWithinInstallGrace() -> Bool {
+        let ud = UserDefaults.standard
+        guard let installed = ud.object(forKey: kInstallDateKey) as? Date else {
+            // 何らかの理由で未保存なら猶予中扱い（安全側）
+            return true
+        }
+        let elapsed = Date().timeIntervalSince(installed)
+        return elapsed < installGraceSeconds
     }
     func loadRewardedAd() {
         Task {
@@ -838,7 +871,15 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             openBackgroundSetting()
             return
         }
-        // 事前告知
+
+        // ★ 変更：猶予中（DEBUG=1分 / RELEASE=24h）は無制限で開放
+        if isWithinInstallGrace() {
+            print("🆓 Install grace active → skipping reward ad")
+            openBackgroundSetting()
+            return
+        }
+
+        // 以降は従来の事前告知→視聴フロー
         let alert = UIAlertController(
             title: "背景設定の解放",
             message: "広告を視聴すると、背景設定画面に1回だけ進めます。よろしいですか？",
