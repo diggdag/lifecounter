@@ -20,12 +20,7 @@ class Consts {
     static let ADMOB_UNIT_ID_BGSELECT: String = "ca-app-pub-5418872710464793/6190902703"
     static let ADMOB_UNIT_ID_SETTING: String = "ca-app-pub-5418872710464793/8292371957"
     static let ADMOB_UNIT_ID_LIST_NATIVE: String = "ca-app-pub-5418872710464793/4776598154"
-    
-#if DEBUG
-    static let ADMOB_UNIT_ID_REWARD = "ca-app-pub-3940256099942544/5224354917" // Rewarded（Google公式テストID）
-#else
     static let ADMOB_UNIT_ID_REWARD: String = "ca-app-pub-5418872710464793/6840728795"
-#endif
     
     //テスト広告
 //    static let ADMOB_UNIT_ID_MAIN: String = "ca-app-pub-3940256099942544/6300978111"

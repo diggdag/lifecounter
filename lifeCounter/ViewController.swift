@@ -231,11 +231,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     // --- install-day grace window (DEBUG: 60s / RELEASE: 24h) ---
     private var installGraceSeconds: TimeInterval {
-        #if DEBUG
-        return 60                  // デバッグ時は 1分
-        #else
+//        return 60                  // デバッグ時は 1分
         return 12 * 60 * 60        // リリース時は 12時間
-        #endif
     }
 
     private func isWithinInstallGrace() -> Bool {
