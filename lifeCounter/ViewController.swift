@@ -639,14 +639,14 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             switch next {
             case .normal:
                 // 上向き＋下向き（対面）
-                return "arrow.up.and.down"
+                return "person.fill"
             case .left:
-                return "arrow.left"
+                return "person.fill.turn.right"
             case .right:
-                return "arrow.right"
+                return "person.fill.turn.left"
             case .bothFacing:
                 // 両方こちら向き（下向き×2 のアイコンはないので妥協案）
-                return "chevron.down"
+                return "person.2.fill"
             }
         }()
         
