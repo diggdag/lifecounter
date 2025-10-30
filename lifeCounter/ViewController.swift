@@ -364,6 +364,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     
     @IBAction func touchDown_clearBtn(_ sender: Any) {
+        haptic(.heavy)
         let t:CGFloat = -1.0
         self.clearBtn.spinAnim(self.clearBtn,t)
         
@@ -454,6 +455,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         }
     }
     @IBAction func touchDown_image_settingBtn(_ sender: Any) {
+        haptic(.light)
         showRewardedAdWithDialog()
     }
 
@@ -468,6 +470,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     
     @IBAction func touchDown_setting(_ sender: Any) {
+        haptic(.light)
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         guard let childVC = storyboard.instantiateViewController(withIdentifier: "SettingsTableViewController") as? SettingsTableViewController else {
             return
@@ -478,6 +481,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         //        self.performSegue(withIdentifier: "toSetting", sender: nil)
     }
     @IBAction func touchDown_dice6(_ sender: Any) {
+        haptic(.light)
         let diceNum_p1 = getDiceNum(type: DiceType.six)
         var diceNum_p2 = getDiceNum(type: DiceType.six)
         while diceNum_p1 == diceNum_p2 {
@@ -521,6 +525,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     // PLUS BTN1 (Player 1)
     @IBAction func touchDown_plusBtn1(_ sender: Any) {
+        haptic(.light)
         lifeIncrement(.player1)
         addOverlay(to: p1bg, side: .right)
     }
@@ -536,6 +541,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
 
     // PLUS BTN2 (Player 2)
     @IBAction func touchDown_plusBtn2(_ sender: Any) {
+        haptic(.light)
         lifeIncrement(.player2)
         addOverlay(to: p2bg, side: .right)
     }
@@ -551,6 +557,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
 
     // MINUS BTN1 (Player 1)
     @IBAction func touchDown_minusBtn1(_ sender: Any) {
+        haptic(.light)
         lifeDecrement(.player1)
         addOverlay(to: p1bg, side: .left)
     }
@@ -566,6 +573,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
 
     // MINUS BTN2 (Player 2)
     @IBAction func touchDown_minusBtn2(_ sender: Any) {
+        haptic(.light)
         lifeDecrement(.player2)
         addOverlay(to: p2bg, side: .left)
     }
@@ -828,6 +836,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         return image
     }
     @IBAction func touchDown_rotate(_ sender: Any) {
+        haptic(.light)
         print("touchDown_rotate called!screenRotate(before):\(screenRotate)")
         
         switch screenRotate {
@@ -976,6 +985,11 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             p2bg.topAnchor.constraint(equalTo: view.topAnchor),
             p2bg.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
+    }
+    func haptic(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .light) {
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
+        generator.impactOccurred()
     }
 }
 
