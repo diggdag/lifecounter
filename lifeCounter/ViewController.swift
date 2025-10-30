@@ -41,6 +41,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @IBOutlet weak var p1bgtopmargin: NSLayoutConstraint!
     @IBOutlet weak var middleView: UIView!
     @IBOutlet weak var verticalDummy: UIView!
+    @IBOutlet weak var rotateButton: UIButton!
     var lifeflow_lifes = [[Int]]()
     
     var _life1 :Int=20
@@ -140,6 +141,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             print("Error fetching data: \(error)")
         }
         rotate_exec(rotate: screenRotate)
+        updateRotateButtonPreview()
         clearBtn.imageView?.contentMode = .scaleAspectFit
         clearBtn.contentHorizontalAlignment = .fill
         clearBtn.contentVerticalAlignment = .fill
@@ -624,6 +626,40 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         case right = 2
         case bothFacing  = 3
     }
+    func nextMode(from current: Rotate) -> Rotate {
+        switch current {
+        case .normal:     return .left
+        case .left:       return .right
+        case .right:      return .bothFacing
+        case .bothFacing: return .normal
+        }
+    }
+    private func previewImage(for next: Rotate) -> UIImage? {
+        let symbolName: String = {
+            switch next {
+            case .normal:
+                // 上向き＋下向き（対面）
+                return "arrow.up.and.down"
+            case .left:
+                return "arrow.left"
+            case .right:
+                return "arrow.right"
+            case .bothFacing:
+                // 両方こちら向き（下向き×2 のアイコンはないので妥協案）
+                return "chevron.down"
+            }
+        }()
+        
+        return UIImage(systemName: symbolName)?.withRenderingMode(.alwaysTemplate)
+    }
+
+    // 置き換え：プレビュー更新
+    func updateRotateButtonPreview() {
+        let next = nextMode(from: screenRotate)
+        rotateButton.setImage(previewImage(for: next), for: .normal)
+        // テンプレ色にしているなら色も指定
+        // rotateButton.tintColor = .tintColor
+    }
     func lifeIncrement(_ p:Player){
         switch p {
         case .player1:
@@ -805,6 +841,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             screenRotate = .normal
         }
         rotate_exec(rotate: screenRotate)
+        updateRotateButtonPreview()
         let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
         let viewContext = appDelegate.persistentContainer.viewContext
         let request: NSFetchRequest<Setting> = Setting.fetchRequest()
