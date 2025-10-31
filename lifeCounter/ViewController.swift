@@ -82,8 +82,15 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(appBecameActive),
+                name: .appDidBecomeActive,
+                object: nil
+            )
         // ← 追加：インストール日時を確定させる
         ensureInstallDateSaved()
+//        styleIconButton(clearBtn,   symbolName: "arrow.triangle.2.circlepath")
         loadRewardedAd()
         let minDimension = min(p1bg.frame.width, p1bg.frame.height)
         bgwidthp1.constant = minDimension
@@ -118,28 +125,51 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         viewContext = appDelegate.persistentContainer.viewContext
+        ensureDefaultSettingExists()   // ★これを最初に呼ぶ
+        ensureDefaultBackgroundExists() // ← これ追加
         let request: NSFetchRequest<Setting> = Setting.fetchRequest()
         do {
             let fetchResults = try viewContext.fetch(request)
             if let setting = fetchResults.first {
                 screenRotate = Rotate(rawValue: setting.rotateDirection) ?? .normal
-                if setting.defaultLifeP1 != 0 {
-                    _life1=Int(setting.defaultLifeP1)
-                    life1.text = String(_life1)
-                }
-                if setting.defaultLifep2 != 0 {
-                    _life2=Int(setting.defaultLifep2)
-                    life2.text = String(_life2)
-                }
+                
+                // ✅ 0でも常にフェールセーフで20を入れる
+                let p1 = (setting.defaultLifeP1 == 0) ? 20 : Int(setting.defaultLifeP1)
+                let p2 = (setting.defaultLifep2 == 0) ? 20 : Int(setting.defaultLifep2)
+
+                _life1 = p1
+                _life2 = p2
+                life1.text = String(p1)
+                life2.text = String(p2)
+
                 if setting.bgopacity != 0 {
-                    bgopacity=CGFloat(setting.bgopacity)
+                    bgopacity = CGFloat(setting.bgopacity)
+                } else {
+                    bgopacity = 0.8
+                }
+
+                // ✅ 不正値(0)の場合、CoreData側にも正しい値を保存しておくと安全
+                if setting.defaultLifeP1 == 0 || setting.defaultLifep2 == 0 {
+                    setting.defaultLifeP1 = 20
+                    setting.defaultLifep2 = 20
+                    try? viewContext.save()
                 }
             } else {
+                // ✅ レコード無しでも必ず20/20
+                _life1 = 20; life1.text = "20"
+                _life2 = 20; life2.text = "20"
                 screenRotate = .normal
+                bgopacity = 0.8
             }
         } catch {
             print("Error fetching data: \(error)")
+            // ✅ エラー時も20/20で安全
+            _life1 = 20; life1.text = "20"
+            _life2 = 20; life2.text = "20"
+            screenRotate = .normal
+            bgopacity = 0.8
         }
+
         rotate_exec(rotate: screenRotate)
         updateRotateButtonPreview()
         clearBtn.imageView?.contentMode = .scaleAspectFit
@@ -185,7 +215,9 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         )
 //        bannerView.backgroundColor=UIColor.green
     }
-    
+    @objc func appBecameActive() {
+        updateLifeLabelStyle(isDark: UITraitCollection.isDarkMode)
+    }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         //ad
@@ -330,20 +362,31 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             print("Error fetching data: \(error)")
         }
     }
-    
     func refreshLife() {
         let request: NSFetchRequest<Setting> = Setting.fetchRequest()
         do {
             let fetchResults = try viewContext.fetch(request)
             if let setting = fetchResults.first {
-                _life1=Int(setting.defaultLifeP1)
-                life1.text = String(_life1)
-                _life2=Int(setting.defaultLifep2)
-                life2.text = String(_life2)
+                let p1 = (setting.defaultLifeP1 == 0) ? Int(Consts.DEFAULT_LIFE) : Int(setting.defaultLifeP1)
+                let p2 = (setting.defaultLifep2 == 0) ? Int(Consts.DEFAULT_LIFE) : Int(setting.defaultLifep2)
+                _life1 = p1; life1.text = String(p1)
+                _life2 = p2; life2.text = String(p2)
+                // ついでに不正(0)を検知したら保存し直しておくと後々安全
+                if setting.defaultLifeP1 == 0 || setting.defaultLifep2 == 0 {
+                    setting.defaultLifeP1 = Int16(p1)
+                    setting.defaultLifep2 = Int16(p2)
+                    try? viewContext.save()
+                }
             } else {
+                // 念のため：レコード無しでも20/20に
+                _life1 = Int(Consts.DEFAULT_LIFE); life1.text = String(Consts.DEFAULT_LIFE)
+                _life2 = Int(Consts.DEFAULT_LIFE); life2.text = String(Consts.DEFAULT_LIFE)
             }
         } catch {
             print("Error fetching data: \(error)")
+            // 失敗時も20/20で表示
+            _life1 = Int(Consts.DEFAULT_LIFE); life1.text = String(Consts.DEFAULT_LIFE)
+            _life2 = Int(Consts.DEFAULT_LIFE); life2.text = String(Consts.DEFAULT_LIFE)
         }
     }
     func setMasterSetting_init()  {
@@ -365,7 +408,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     
     @IBAction func touchDown_clearBtn(_ sender: Any) {
         haptic(.heavy)
-        let t:CGFloat = -1.0
+        let t:CGFloat = 1.0//反時計回りにしたい場合は-1.0を指定
         self.clearBtn.spinAnim(self.clearBtn,t)
         
         //広告表示(勝ってたら広告を表示)
@@ -990,6 +1033,99 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()
         generator.impactOccurred()
+    }
+    // 共通スタイル関数（ファイル先頭のどこでもOK）
+    func styleIconButton(_ b: UIButton, symbolName: String) {
+        // 1) アイコンを大きく・太く
+        let cfg = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold, scale: .large)
+        let img = UIImage(systemName: symbolName, withConfiguration: cfg)!.withRenderingMode(.alwaysTemplate)
+        b.setImage(img, for: .normal)
+        b.setTitle(nil, for: .normal)
+        b.tintColor = .tintColor
+
+        // 2) 触りやすいヒットエリア（見た目はそのままでもOK）
+        b.contentEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        b.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+
+        // 3) 画像のフィット
+        b.imageView?.contentMode = .scaleAspectFit
+    }
+    
+    private let DEFAULT_ROTATE: Rotate = .normal
+    private func ensureDefaultSettingExists() {
+        let request: NSFetchRequest<Setting> = Setting.fetchRequest()
+        do {
+            let results = try viewContext.fetch(request)
+            if results.isEmpty {
+                // 初回インストール時に1レコード作成
+                if let entity = NSEntityDescription.entity(forEntityName: "Setting", in: viewContext) {
+                    let s = Setting(entity: entity, insertInto: viewContext)
+                    s.defaultLifeP1     = Consts.DEFAULT_LIFE
+                    s.defaultLifep2     = Consts.DEFAULT_LIFE
+                    s.bgopacity         = Consts.DEFAULT_BGOPACITY
+                    s.rotateDirection   = DEFAULT_ROTATE.rawValue
+                    try viewContext.save()
+                    print("✅ Seeded default Setting(20/20, opacity \(Consts.DEFAULT_BGOPACITY))")
+                }
+            }
+        } catch {
+            print("ensureDefaultSettingExists error: \(error)")
+        }
+    }
+    private func ensureDefaultBackgroundExists() {
+        let req: NSFetchRequest<Background> = Background.fetchRequest()
+        do {
+            let count = try viewContext.count(for: req)
+            if count == 0 {
+
+                func insertDefaultImage(named: String, player: Int16) {
+                    if let entity = NSEntityDescription.entity(forEntityName: "Background", in: viewContext),
+                       let img = UIImage(named: named),
+                       let data = img.pngData() {
+
+                        let record = Background(entity: entity, insertInto: viewContext)
+                        let nextId = Utilities.getNextId(viewContext: viewContext)
+                        record.id      = Int32(Int16(nextId))
+                        record.picture = data
+                        record.scale   = 1.0
+                        record.player  = player
+
+                        print("🖼️ Seed default background \(named) → player \(player)")
+                    }
+                }
+
+                // ✅ 自分用 & 相手用の２枚
+                insertDefaultImage(named: Consts.ASSET_DEFAULT_BG_1, player: 1)
+                insertDefaultImage(named: Consts.ASSET_DEFAULT_BG_2, player: 2)
+
+                try viewContext.save()
+                UserDefaults.standard.set(true, forKey: Consts.BG_SEEDED_KEY)
+            }
+        } catch {
+            print("❌ ensureDefaultBackgroundExists error:", error)
+        }
+    }
+    func updateLifeLabelStyle(isDark: Bool) {
+        let labelList = [life1, life2]
+
+        for label in labelList {
+            guard let label = label else { continue }
+
+            if isDark {
+                label.textColor = .white
+                label.layer.shadowColor = UIColor.black.cgColor
+            } else {
+                label.textColor = .black
+                label.layer.shadowColor = UIColor.white.withAlphaComponent(0.6).cgColor
+            }
+
+            label.layer.shadowRadius = 4
+            label.layer.shadowOpacity = 0.8
+            label.layer.shadowOffset = .zero
+            label.layer.masksToBounds = false
+        }
     }
 }
 

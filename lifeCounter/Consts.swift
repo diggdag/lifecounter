@@ -12,9 +12,16 @@ class Consts {
     static let LIST_AD_INTERVAL: Int = 3
     static let SETTING_DEFAULT_LIFE_STEP:Float=5
     static let FORMAT_DATE_HIS:String="yyyy/MM/dd' 'HH:mm"
+        
+    static let BG_SEEDED_KEY = "seeded_default_background_v1"
+    static let ASSET_DEFAULT_BG_1 = "default_bg_p1"
+    static let ASSET_DEFAULT_BG_2 = "default_bg_p2"
+    
 //    static let FORMAT_DATE_HIS:String="yyyy-MM-dd' 'HH:mm:ss"
     static let ADMOB_TEST_DEVICE_ID_SE2: String = "05db8b8bb003e0b96c0467e6e889d6bd"
     
+    static let DEFAULT_LIFE: Int16 = 20
+    static let DEFAULT_BGOPACITY: Float = 0.8
     //AD
     static let ADMOB_UNIT_ID_MAIN: String = "ca-app-pub-5418872710464793/5128065062"
     static let ADMOB_UNIT_ID_BGSELECT: String = "ca-app-pub-5418872710464793/6190902703"

@@ -59,6 +59,11 @@ class ViewController_image: UIViewController {
         print("ViewController viewWillAppear")
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         viewContext = appDelegate.persistentContainer.viewContext
+        let gifted = seedDefaultGalleryImagesIfNeeded()
+        if gifted {
+            // “おこがましい”ので、控えめ＆短めトーストに
+            self.view.makeToast("デフォルト背景を2枚プレゼントしました 🎁", duration: 1.8, position: .center)
+        }
         refreshData()
     }
     
@@ -351,6 +356,51 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
             appDelegate.saveContext()
             self.dismiss(animated: true, completion: nil)
             refreshData()
+        }
+    }
+    private func seedDefaultGalleryImagesIfNeeded() -> Bool {
+        let key = Consts.BG_SEEDED_KEY
+        let ud = UserDefaults.standard
+        if ud.bool(forKey: key) {
+            print("seed: already done, skip")
+            return false
+        }
+
+        // 既存ユーザ判定用に、投入前の件数を見ておく
+        let preCount: Int
+        do {
+            let req: NSFetchRequest<Background> = Background.fetchRequest()
+            preCount = try viewContext.count(for: req)
+        } catch {
+            preCount = 0
+        }
+
+        // 画像投入
+        let defaults = [Consts.ASSET_DEFAULT_BG_1, Consts.ASSET_DEFAULT_BG_2]
+        var inserted = 0
+        for name in defaults {
+            guard let img = UIImage(named: name), let data = img.pngData() else {
+                print("❌ seed: UIImage(named: \(name)) = nil")
+                continue
+            }
+            let bg = NSEntityDescription.insertNewObject(forEntityName: "Background", into: viewContext)
+            bg.setValue(Utilities.getNextId(viewContext: viewContext), forKey: "id")
+            bg.setValue(data, forKey: "picture")
+            bg.setValue(1.0, forKey: "scale")
+            bg.setValue(Int16(0), forKey: "player") // 未選択
+            inserted += 1
+        }
+
+        if inserted > 0 {
+            do { try viewContext.save() } catch { print("Seed BG save error: \(error)") }
+            ud.set(true, forKey: key)
+            print("✅ seed: inserted \(inserted) images")
+            // 既存ユーザへの“プレゼント”としてトーストしたいので、
+            // 「元から何か入ってた（=既存ユーザっぽい）かつ今回挿入があった」時だけ true を返す
+            return preCount > 0
+        } else {
+            print("⚠️ seed: nothing inserted")
+            return false
         }
     }
 }

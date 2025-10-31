@@ -30,9 +30,9 @@ weak var delegate: ChildViewControllerDelegate?
     var viewContext:NSManagedObjectContext!
     
 //    var bannerView: GADBannerView!
-    var upperLifeP1:Int = 20
-    var upperLifeP2:Int = 20
-    var bgopacity:Float = 0.8
+    var upperLifeP1:Int = Int(Consts.DEFAULT_LIFE)
+    var upperLifeP2:Int = Int(Consts.DEFAULT_LIFE)
+    var bgopacity:Float = Consts.DEFAULT_BGOPACITY
     
     @IBOutlet weak var saveBtn: UIButton!
     static var defaultLifeChanged = false

@@ -18,3 +18,6 @@ extension UITraitCollection {
     }
 
 }
+extension Notification.Name {
+    static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
+}
