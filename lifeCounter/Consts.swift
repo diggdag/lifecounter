@@ -14,8 +14,11 @@ class Consts {
     static let FORMAT_DATE_HIS:String="yyyy/MM/dd' 'HH:mm"
         
     static let BG_SEEDED_KEY = "seeded_default_background_v1"
+    static let BG_SEEDED_KEY_2 = "seeded_default_background_v2"
     static let ASSET_DEFAULT_BG_1 = "default_bg_p1"
     static let ASSET_DEFAULT_BG_2 = "default_bg_p2"
+    static let ASSET_DEFAULT_BG_2_1 = "default_bg_p1_white"
+    static let ASSET_DEFAULT_BG_2_2 = "default_bg_p2_white"
     
 //    static let FORMAT_DATE_HIS:String="yyyy-MM-dd' 'HH:mm:ss"
     static let ADMOB_TEST_DEVICE_ID_SE2: String = "05db8b8bb003e0b96c0467e6e889d6bd"

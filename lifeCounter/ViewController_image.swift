@@ -56,15 +56,34 @@ class ViewController_image: UIViewController {
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("ViewController viewWillAppear")
+
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         viewContext = appDelegate.persistentContainer.viewContext
-        let gifted = seedDefaultGalleryImagesIfNeeded()
-        if gifted {
-            // “おこがましい”ので、控えめ＆短めトーストに
-            self.view.makeToast("デフォルト背景を2枚プレゼントしました 🎁", duration: 1.8, position: .center)
+
+        // 今の総数
+        let beforeCount = fetchBackgroundCount()
+
+        // シード処理
+        let addedV1 = seedDefaultGalleryImagesIfNeeded()
+        let addedV2 = seedDefaultGalleryImages_v2()
+
+        let totalAdded = addedV1 + addedV2
+
+        // 追加後の総数
+        let afterCount = fetchBackgroundCount()
+
+        // ✅ 元が0枚 = 初回インストール → トースト不要
+        // ✅ それ以外で追加があればトースト表示
+        if beforeCount > 0 && totalAdded > 0 {
+            self.view.makeToast("\(totalAdded)枚のデフォルト背景を追加しました！", duration: 1.8, position: .center)
         }
+
         refreshData()
+    }
+
+    private func fetchBackgroundCount() -> Int {
+        let req: NSFetchRequest<Background> = Background.fetchRequest()
+        return (try? viewContext.count(for: req)) ?? 0
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -358,50 +377,89 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
             refreshData()
         }
     }
-    private func seedDefaultGalleryImagesIfNeeded() -> Bool {
+    func seedDefaultGalleryImagesIfNeeded() -> Int {
         let key = Consts.BG_SEEDED_KEY
         let ud = UserDefaults.standard
-        if ud.bool(forKey: key) {
-            print("seed: already done, skip")
-            return false
-        }
-
-        // 既存ユーザ判定用に、投入前の件数を見ておく
-        let preCount: Int
-        do {
-            let req: NSFetchRequest<Background> = Background.fetchRequest()
-            preCount = try viewContext.count(for: req)
-        } catch {
-            preCount = 0
-        }
-
-        // 画像投入
+        if ud.bool(forKey: key) { return 0 }
+        
         let defaults = [Consts.ASSET_DEFAULT_BG_1, Consts.ASSET_DEFAULT_BG_2]
-        var inserted = 0
+        var added = 0
+
         for name in defaults {
-            guard let img = UIImage(named: name), let data = img.pngData() else {
-                print("❌ seed: UIImage(named: \(name)) = nil")
+            guard let data = UIImage(named: name)?.pngData() else {
+                print("❌ seed v1: UIImage(named: \(name)) = nil")
                 continue
             }
+
+            // 👇 ここ追加：重複画像チェック
+            if existsPictureData(data) {
+                print("⚠️ seed v1: already exists (\(name)), skip")
+                continue
+            }
+
             let bg = NSEntityDescription.insertNewObject(forEntityName: "Background", into: viewContext)
             bg.setValue(Utilities.getNextId(viewContext: viewContext), forKey: "id")
             bg.setValue(data, forKey: "picture")
             bg.setValue(1.0, forKey: "scale")
-            bg.setValue(Int16(0), forKey: "player") // 未選択
-            inserted += 1
+            bg.setValue(Int16(0), forKey: "player")
+            added += 1
         }
 
-        if inserted > 0 {
-            do { try viewContext.save() } catch { print("Seed BG save error: \(error)") }
+        if added > 0 {
+            try? viewContext.save()
             ud.set(true, forKey: key)
-            print("✅ seed: inserted \(inserted) images")
-            // 既存ユーザへの“プレゼント”としてトーストしたいので、
-            // 「元から何か入ってた（=既存ユーザっぽい）かつ今回挿入があった」時だけ true を返す
-            return preCount > 0
-        } else {
-            print("⚠️ seed: nothing inserted")
-            return false
         }
+
+        return added
+    }
+    private func seedDefaultGalleryImages_v2() -> Int {
+        let key = Consts.BG_SEEDED_KEY_2
+        let ud = UserDefaults.standard
+        
+        if ud.bool(forKey: key) {
+            print("seed v2: already done, skip")
+            return 0
+        }
+
+        let names = [Consts.ASSET_DEFAULT_BG_2_1, Consts.ASSET_DEFAULT_BG_2_2]
+        var added = 0
+
+        for name in names {
+            guard let data = UIImage(named: name)?.pngData() else {
+                print("❌ seed v2: UIImage(named: \(name)) = nil")
+                continue
+            }
+
+            // 👇 ここ追加：重複画像チェック
+            if existsPictureData(data) {
+                print("⚠️ seed v2: already exists (\(name)), skip")
+                continue
+            }
+
+            let bg = NSEntityDescription.insertNewObject(forEntityName: "Background", into: viewContext)
+            bg.setValue(Utilities.getNextId(viewContext: viewContext), forKey: "id")
+            bg.setValue(data, forKey: "picture")
+            bg.setValue(1.0, forKey: "scale")
+            bg.setValue(Int16(0), forKey: "player")
+            added += 1
+        }
+
+        if added > 0 {
+            do { try viewContext.save() } catch {
+                print("seed v2 save error: \(error)")
+                return 0
+            }
+            ud.set(true, forKey: key)
+        }
+
+        print("✅ seeded v2 (\(added) item(s))")
+        return added
+    }
+    private func existsPictureData(_ data: Data) -> Bool {
+        let req = NSFetchRequest<NSFetchRequestResult>(entityName: "Background")
+        req.fetchLimit = 1
+        req.predicate = NSPredicate(format: "picture == %@", data as NSData)
+        return ((try? viewContext.count(for: req)) ?? 0) > 0
     }
 }
 extension ViewController_image:UIAdaptivePresentationControllerDelegate{
