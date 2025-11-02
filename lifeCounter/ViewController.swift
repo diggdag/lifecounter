@@ -69,7 +69,16 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     private var earnedRewardPendingOpen = false   // ← 視聴完了後、閉じたら遷移するための一時フラグ
     // --- install-day skip (reward off on install day) ---
     private let kInstallDateKey = "installDate"
-
+    // ====== Burst (連打) 表示用 ======
+    private let burstWindow: TimeInterval = 0.6 // 最後のタップから何秒でリセットするか
+    private var minusStreakP1 = 0
+    private var minusStreakP2 = 0
+    private var plusStreakP1  = 0
+    private var plusStreakP2  = 0
+    private var timerMinusP1: Timer?
+    private var timerMinusP2: Timer?
+    private var timerPlusP1:  Timer?
+    private var timerPlusP2:  Timer?
     private func ensureInstallDateSaved() {
         // まだ保存されていなければ現在時刻を保存（初回起動時のみ）
         let ud = UserDefaults.standard
@@ -262,6 +271,52 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
         print("aspect:\(aspect)")
+    }
+    private func scheduleReset(_ timerRef: inout Timer?, action: @escaping () -> Void) {
+        timerRef?.invalidate()
+        timerRef = Timer.scheduledTimer(withTimeInterval: burstWindow, repeats: false) { _ in
+            action()
+        }
+    }
+
+    /// 画面上に “±N” をフワッと出して消す
+    private func showBurst(on host: UIView, text: String, side: OverlaySide) {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 42, weight: .semibold)
+        label.textAlignment = .center
+        // 背景が暗いときは白文字＋影、明るいときは黒文字＋白影
+        if UITraitCollection.isDarkMode {
+            label.textColor = .white
+            label.layer.shadowColor = UIColor.black.cgColor
+        } else {
+            label.textColor = .black
+            label.layer.shadowColor = UIColor.white.withAlphaComponent(0.7).cgColor
+        }
+        label.layer.shadowOpacity = 0.9
+        label.layer.shadowRadius  = 4
+        label.layer.shadowOffset  = .zero
+        label.alpha = 0
+
+        // 出す位置（左/右の半分エリアの中央）
+        let half = host.bounds.width / 2
+        let x: CGFloat = (side == .left) ? half * 0.5 : (half * 1.5)
+        let y: CGFloat = host.bounds.height * 0.5
+        label.frame = CGRect(x: 0, y: 0, width: half, height: 56)
+        label.center = CGPoint(x: x, y: y)
+        host.addSubview(label)
+
+        // ふわっと出て、少し上に移動しながら消える
+        UIView.animate(withDuration: 0.08, animations: {
+            label.alpha = 1
+        }) { _ in
+            UIView.animate(withDuration: 0.35, delay: 0, options: [.curveEaseOut]) {
+                label.alpha = 0
+                label.center.y -= 18
+            } completion: { _ in
+                label.removeFromSuperview()
+            }
+        }
     }
     // --- install-day grace window (DEBUG: 60s / RELEASE: 24h) ---
     private var installGraceSeconds: TimeInterval {
@@ -571,6 +626,12 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         haptic(.light)
         lifeIncrement(.player1)
         addOverlay(to: p1bg, side: .right)
+
+        plusStreakP1 += 1
+        showBurst(on: p1bg, text: "+\(plusStreakP1)", side: .right)
+        scheduleReset(&timerPlusP1) { [weak self] in
+            self?.plusStreakP1 = 0
+        }
     }
     @IBAction func touchUpInside_plusBtn1(_ sender: Any) {
         removeOverlay(from: p1bg)
@@ -587,6 +648,12 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         haptic(.light)
         lifeIncrement(.player2)
         addOverlay(to: p2bg, side: .right)
+
+        plusStreakP2 += 1
+        showBurst(on: p2bg, text: "+\(plusStreakP2)", side: .right)
+        scheduleReset(&timerPlusP2) { [weak self] in
+            self?.plusStreakP2 = 0
+        }
     }
     @IBAction func touchUpInside_plusBtn2(_ sender: Any) {
         removeOverlay(from: p2bg)
@@ -603,6 +670,13 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         haptic(.light)
         lifeDecrement(.player1)
         addOverlay(to: p1bg, side: .left)
+
+        // 連打カウント＆表示
+        minusStreakP1 += 1
+        showBurst(on: p1bg, text: "-\(minusStreakP1)", side: .left)
+        scheduleReset(&timerMinusP1) { [weak self] in
+            self?.minusStreakP1 = 0
+        }
     }
     @IBAction func touchUpInside_minusBtn1(_ sender: Any) {
         removeOverlay(from: p1bg)
@@ -619,6 +693,12 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         haptic(.light)
         lifeDecrement(.player2)
         addOverlay(to: p2bg, side: .left)
+
+        minusStreakP2 += 1
+        showBurst(on: p2bg, text: "-\(minusStreakP2)", side: .left)
+        scheduleReset(&timerMinusP2) { [weak self] in
+            self?.minusStreakP2 = 0
+        }
     }
     @IBAction func touchUpInside_minusBtn2(_ sender: Any) {
         removeOverlay(from: p2bg)
