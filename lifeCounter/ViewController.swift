@@ -60,7 +60,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     var countDownCnt:Countdown = Countdown.three
     
     var interstitial: GADInterstitialAd?
-
+    
     let RADIUS:CGFloat = 20
     var screenRotate:Rotate = .normal
     var bgopacity:CGFloat = 0.8
@@ -88,18 +88,18 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             print("🗓️ Saved installDate = \(Date())")
         }
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(appBecameActive),
-                name: .appDidBecomeActive,
-                object: nil
-            )
+            self,
+            selector: #selector(appBecameActive),
+            name: .appDidBecomeActive,
+            object: nil
+        )
         // ← 追加：インストール日時を確定させる
         ensureInstallDateSaved()
-//        styleIconButton(clearBtn,   symbolName: "arrow.triangle.2.circlepath")
+        //        styleIconButton(clearBtn,   symbolName: "arrow.triangle.2.circlepath")
         loadRewardedAd()
         let minDimension = min(p1bg.frame.width, p1bg.frame.height)
         bgwidthp1.constant = minDimension
@@ -113,7 +113,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         //受信設定
         NotificationCenter.default.addObserver(self, selector: #selector(notificationFunc_pushhome(notification:)), name: .notificationName, object: nil)
         
-//        interstitial = createAndLoadInterstitial()
+        //        interstitial = createAndLoadInterstitial()
         
         if #available(iOS 13.0, *) {
             Task{
@@ -145,18 +145,18 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 // ✅ 0でも常にフェールセーフで20を入れる
                 let p1 = (setting.defaultLifeP1 == 0) ? 20 : Int(setting.defaultLifeP1)
                 let p2 = (setting.defaultLifep2 == 0) ? 20 : Int(setting.defaultLifep2)
-
+                
                 _life1 = p1
                 _life2 = p2
                 life1.text = String(p1)
                 life2.text = String(p2)
-
+                
                 if setting.bgopacity != 0 {
                     bgopacity = CGFloat(setting.bgopacity)
                 } else {
                     bgopacity = 0.8
                 }
-
+                
                 // ✅ 不正値(0)の場合、CoreData側にも正しい値を保存しておくと安全
                 if setting.defaultLifeP1 == 0 || setting.defaultLifep2 == 0 {
                     setting.defaultLifeP1 = 20
@@ -178,7 +178,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             screenRotate = .normal
             bgopacity = 0.8
         }
-
+        
         rotate_exec(rotate: screenRotate)
         updateRotateButtonPreview()
         clearBtn.imageView?.contentMode = .scaleAspectFit
@@ -202,7 +202,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 DispatchQueue.main.async() {
                 }
             }
-//            PHPhotoLibrary.authorizationStatus(for: accessLebel)
+            //            PHPhotoLibrary.authorizationStatus(for: accessLebel)
         }
         else {
             // Fallback on earlier versions
@@ -210,7 +210,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 DispatchQueue.main.async() {
                 }
             }
-//            PHPhotoLibrary.authorizationStatus()
+            //            PHPhotoLibrary.authorizationStatus()
             dice.setTitle("D6", for: .normal)
         }
         p1bg.layer.cornerRadius = RADIUS
@@ -222,7 +222,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             name: UIApplication.didBecomeActiveNotification,
             object: nil
         )
-//        bannerView.backgroundColor=UIColor.green
+        //        bannerView.backgroundColor=UIColor.green
     }
     @objc func appBecameActive() {
         updateLifeLabelStyle(isDark: UITraitCollection.isDarkMode)
@@ -234,7 +234,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     
     override func viewWillTransition(to size: CGSize,
-                            with coordinator: UIViewControllerTransitionCoordinator) {
+                                     with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to:size, with:coordinator)
         //ad start
         coordinator.animate(alongsideTransition: { _ in
@@ -261,11 +261,11 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     func loadBannerAd() {
         print("loadBannerAd called")
         let frame = { () -> CGRect in
-        if #available(iOS 11.0, *) {
-            return view.frame.inset(by: view.safeAreaInsets)
-        } else {
-            return view.frame
-        }
+            if #available(iOS 11.0, *) {
+                return view.frame.inset(by: view.safeAreaInsets)
+            } else {
+                return view.frame
+            }
         }()
         let viewWidth = frame.size.width
         let viewHeight = frame.size.height
@@ -278,7 +278,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             action()
         }
     }
-
+    
     /// 画面上に “±N” をフワッと出して消す
     private func showBurst(on host: UIView, text: String, side: OverlaySide) {
         let label = UILabel()
@@ -297,7 +297,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         label.layer.shadowRadius  = 4
         label.layer.shadowOffset  = .zero
         label.alpha = 0
-
+        
         // 出す位置（左/右の半分エリアの中央）
         let half = host.bounds.width / 2
         let x: CGFloat = (side == .left) ? half * 0.5 : (half * 1.5)
@@ -305,7 +305,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         label.frame = CGRect(x: 0, y: 0, width: half, height: 56)
         label.center = CGPoint(x: x, y: y)
         host.addSubview(label)
-
+        
         // ふわっと出て、少し上に移動しながら消える
         UIView.animate(withDuration: 0.08, animations: {
             label.alpha = 1
@@ -320,10 +320,10 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     // --- install-day grace window (DEBUG: 60s / RELEASE: 24h) ---
     private var installGraceSeconds: TimeInterval {
-//        return 60                  // デバッグ時は 1分
+        //        return 60                  // デバッグ時は 1分
         return 12 * 60 * 60        // リリース時は 12時間
     }
-
+    
     private func isWithinInstallGrace() -> Bool {
         let ud = UserDefaults.standard
         guard let installed = ud.object(forKey: kInstallDateKey) as? Date else {
@@ -366,7 +366,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @objc func notificationFunc_pushhome(notification: NSNotification?) {
         print("called! notificationFunc_pushhome")
         //画面初期化
-//        screenInitialize([])
+        //        screenInitialize([])
     }
     //背景設定初期メソッド（DBから読み込む）
     func setBackground_init()  {
@@ -407,7 +407,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             }
             else{
                 
-                    print("bunki 2")
+                print("bunki 2")
             }
             
             
@@ -449,10 +449,10 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         do {
             let fetchResults = try viewContext.fetch(query)
             if fetchResults.count != 1 {
-//                setRecodeSw(isOn: false)
+                //                setRecodeSw(isOn: false)
             }
             else{
-//                setRecodeSw(isOn: (fetchResults[0] as Setting).recode)
+                //                setRecodeSw(isOn: (fetchResults[0] as Setting).recode)
             }
         } catch {
         }
@@ -467,56 +467,56 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         self.clearBtn.spinAnim(self.clearBtn,t)
         
         //広告表示(勝ってたら広告を表示)
-//        if interstitial.isReady && Int(life1.text!)! > Int(life2.text!)! {
-//            interstitial.present(fromRootViewController: self)
-//        }
-//        else {
-//            print("Ad wasn't ready")
-//        }
+        //        if interstitial.isReady && Int(life1.text!)! > Int(life2.text!)! {
+        //            interstitial.present(fromRootViewController: self)
+        //        }
+        //        else {
+        //            print("Ad wasn't ready")
+        //        }
         guard let interstitial = interstitial else {
-          return print("Ad wasn't ready.（広告が使える状態でない）")
+            return print("Ad wasn't ready.（広告が使える状態でない）")
         }
-
+        
         // The UIViewController parameter is an optional.
         interstitial.present(fromRootViewController: self)
         refreshLife()
         //画面初期化
-//        screenInitialize(sender)
+        //        screenInitialize(sender)
     }
     
     //広告作成
-//    @available(iOS 13.0.0, *)
-//    func createAndLoadInterstitial() -> GADInterstitialAd? {
-//        Task{
-//            do{
-//                var interstitial = try await GADInterstitialAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: GADRequest())
-//                //            interstitial.delegate = self
-//                //        interstitial.load(GADRequest())
-//                return interstitial
-//            }
-//            catch{
-//                print("Failed to load interstitial ad with error: \(error.localizedDescription)")
-//                return nil
-//            }
-//        }
-//    }
-//
-//    //広告非表示
-//    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
-//        print("interstitialDidDismissScreen!!")
-//        interstitial = createAndLoadInterstitial()
-//    }
+    //    @available(iOS 13.0.0, *)
+    //    func createAndLoadInterstitial() -> GADInterstitialAd? {
+    //        Task{
+    //            do{
+    //                var interstitial = try await GADInterstitialAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_INTERSTITIAL_CLEAR, request: GADRequest())
+    //                //            interstitial.delegate = self
+    //                //        interstitial.load(GADRequest())
+    //                return interstitial
+    //            }
+    //            catch{
+    //                print("Failed to load interstitial ad with error: \(error.localizedDescription)")
+    //                return nil
+    //            }
+    //        }
+    //    }
+    //
+    //    //広告非表示
+    //    func interstitialDidDismissScreen(_ ad: GADInterstitial) {
+    //        print("interstitialDidDismissScreen!!")
+    //        interstitial = createAndLoadInterstitial()
+    //    }
     
-//    func screenInitialize(_ sender: Any)  {
-//        passMin_master = 0//経過時間
-//        lifeflow_lifes.removeAll()
-//        gameStatus = .ready
-//    }
+    //    func screenInitialize(_ sender: Any)  {
+    //        passMin_master = 0//経過時間
+    //        lifeflow_lifes.removeAll()
+    //        gameStatus = .ready
+    //    }
     /// Tells the delegate that the ad failed to present full screen content.
     func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         print("Ad did fail to present full screen content.")
     }
-
+    
     /// Tells the delegate that the ad will present full screen content.
     func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Ad will present full screen content.")
@@ -556,7 +556,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         haptic(.light)
         showRewardedAdWithDialog()
     }
-
+    
     private func openBackgroundSetting() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         guard let childVC = storyboard.instantiateViewController(withIdentifier: "ViewController_image") as? ViewController_image else {
@@ -593,7 +593,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     func deleteImg(player:Player)  {
         let request: NSFetchRequest<Background> = Background.fetchRequest()
         let predicate = NSPredicate(format: "player = \(Player.player1==player ? "1" : "2") OR player = '3'")
-
+        
         request.predicate = predicate
         do {
             let fetchResults = try viewContext.fetch(request)
@@ -607,8 +607,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                     else if record.player == pNum{//me
                         newPlayer -= pNum
                     }
-//                    else if record.player == pNumReverse{//you
-//                    }
+                    //                    else if record.player == pNumReverse{//you
+                    //                    }
                     else if record.player == 3{//both
                         newPlayer -= pNum
                     }
@@ -626,7 +626,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         haptic(.light)
         lifeIncrement(.player1)
         addOverlay(to: p1bg, side: .right)
-
+        
         plusStreakP1 += 1
         showBurst(on: p1bg, text: "+\(plusStreakP1)", side: .right)
         scheduleReset(&timerPlusP1) { [weak self] in
@@ -642,13 +642,13 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @IBAction func touchCancel_plusBtn1(_ sender: Any) {
         removeOverlay(from: p1bg)
     }
-
+    
     // PLUS BTN2 (Player 2)
     @IBAction func touchDown_plusBtn2(_ sender: Any) {
         haptic(.light)
         lifeIncrement(.player2)
         addOverlay(to: p2bg, side: .right)
-
+        
         plusStreakP2 += 1
         showBurst(on: p2bg, text: "+\(plusStreakP2)", side: .right)
         scheduleReset(&timerPlusP2) { [weak self] in
@@ -664,13 +664,13 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @IBAction func touchCancel_plusBtn2(_ sender: Any) {
         removeOverlay(from: p2bg)
     }
-
+    
     // MINUS BTN1 (Player 1)
     @IBAction func touchDown_minusBtn1(_ sender: Any) {
         haptic(.light)
         lifeDecrement(.player1)
         addOverlay(to: p1bg, side: .left)
-
+        
         // 連打カウント＆表示
         minusStreakP1 += 1
         showBurst(on: p1bg, text: "-\(minusStreakP1)", side: .left)
@@ -687,13 +687,13 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @IBAction func touchCancel_minusBtn1(_ sender: Any) {
         removeOverlay(from: p1bg)
     }
-
+    
     // MINUS BTN2 (Player 2)
     @IBAction func touchDown_minusBtn2(_ sender: Any) {
         haptic(.light)
         lifeDecrement(.player2)
         addOverlay(to: p2bg, side: .left)
-
+        
         minusStreakP2 += 1
         showBurst(on: p2bg, text: "-\(minusStreakP2)", side: .left)
         scheduleReset(&timerMinusP2) { [weak self] in
@@ -709,19 +709,19 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @IBAction func touchCancel_minusBtn2(_ sender: Any) {
         removeOverlay(from: p2bg)
     }
-
-
+    
+    
     enum OverlaySide {
         case left
         case right
     }
-
+    
     func addOverlay(to view: UIView, side: OverlaySide) {
         // 既にオーバーレイがあれば追加しない
         if view.viewWithTag(999) == nil {
             let halfWidth = view.bounds.width / 2
             let xPosition: CGFloat = (side == .left) ? 0 : halfWidth
-
+            
             let overlay = UIView(frame: CGRect(x: xPosition, y: 0, width: halfWidth, height: view.bounds.height))
             let color = UITraitCollection.isDarkMode ? UIColor.black : UIColor.white
             overlay.backgroundColor = color.withAlphaComponent(0.3)
@@ -729,13 +729,13 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             view.addSubview(overlay)
         }
     }
-
+    
     func removeOverlay(from view: UIView) {
         if let overlay = view.viewWithTag(999) {
             overlay.removeFromSuperview()
         }
     }
-
+    
     enum GameStatus{
         case ready
         case playing
@@ -783,7 +783,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         
         return UIImage(systemName: symbolName)?.withRenderingMode(.alwaysTemplate)
     }
-
+    
     // 置き換え：プレビュー更新
     func updateRotateButtonPreview() {
         let next = nextMode(from: screenRotate)
@@ -827,69 +827,69 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     //背景画像を設定
     //  playerView:プレイヤービュー
     //  setImage:背景画像
-//    func settingBackground(playerView : inout UIView, setImage : UIImage,scale:CGFloat,initial:Bool = false)  {
-//        
-//        let imageView = UIImageView(image:setImage)
-//        imageView.alpha = 0.8
-//        // スクリーンの縦横サイズを取得
-//        let playerViewWidth:CGFloat = playerView.frame.size.width
-//        let playerViewHeight:CGFloat = playerView.frame.size.height
-//        
-//        // 画像の縦横サイズを取得
-//        let imgWidth:CGFloat = setImage.size.width
-//        let imgHeight:CGFloat = setImage.size.height
-//        print("playerViewWidth:\(playerViewWidth),imgWidth:\(imgWidth)")
-//        // 画像のスケールを計算
-//        let widthScale: CGFloat = playerViewWidth / imgWidth
-//        let heightScale: CGFloat = playerViewHeight / imgHeight
-//        print("widthScale:\(widthScale)")
-////        let finalScale: CGFloat = min(widthScale, heightScale)
-//        // 新しいフレームを計算
-//        let newWidth: CGFloat = imgWidth * widthScale
-//        let newHeight: CGFloat = imgHeight * widthScale
-//        let rect: CGRect = CGRect(x: 0, y: 0, width: newWidth, height: newHeight)
-////        print("imgWidth:\(imgWidth)")
-////        print("imgHeight:\(imgHeight)")
-//        
-//        // 画像サイズをスクリーン幅に合わせる
-////        let scale:CGFloat = playerViewWidth / imgWidth
-////        let scale:CGFloat = 0.4
-////        print("scale:\(scale)")
-////        let rect:CGRect =
-////            CGRect(x:0, y:0, width:imgWidth*scale, height:imgHeight*scale)
-////        let scale_w:CGFloat = playerViewWidth / imgWidth
-////        let scale_h:CGFloat = playerViewWidth / imgHeight
-////        let rect:CGRect =
-////            CGRect(x:0, y:0, width:imgWidth*scale_w, height:imgHeight*scale_h)
-//        
-//        // ImageView frame をCGRectで作った矩形に合わせる
-//        imageView.frame = rect;
-//        
-//        // 画像の中心を画面の中心に設定
-////        imageView.center = CGPoint(x:playerViewWidth/2, y:playerViewHeight/2)
-//        
-//        // UIImageViewのインスタンスをビューに追加
-//        imageView.tag = 100
-//        
-//        //画像のviewを削除
-//        if let viewWithTag = playerView.viewWithTag(100){
-//            viewWithTag.removeFromSuperview()
-//        }
-//        
-//        if playerView.subviews.count == 0 {
-//            playerView.addSubview(imageView)
-//        }
-//        else{
-//            var b:Bool = true
-//            for subView in playerView.subviews{
-//                if b{
-//                    playerView.addSubview(imageView)
-//                    b=false
-//                }
-//                playerView.addSubview(subView)
-//            }
-//        }
-//    }
+    //    func settingBackground(playerView : inout UIView, setImage : UIImage,scale:CGFloat,initial:Bool = false)  {
+    //
+    //        let imageView = UIImageView(image:setImage)
+    //        imageView.alpha = 0.8
+    //        // スクリーンの縦横サイズを取得
+    //        let playerViewWidth:CGFloat = playerView.frame.size.width
+    //        let playerViewHeight:CGFloat = playerView.frame.size.height
+    //
+    //        // 画像の縦横サイズを取得
+    //        let imgWidth:CGFloat = setImage.size.width
+    //        let imgHeight:CGFloat = setImage.size.height
+    //        print("playerViewWidth:\(playerViewWidth),imgWidth:\(imgWidth)")
+    //        // 画像のスケールを計算
+    //        let widthScale: CGFloat = playerViewWidth / imgWidth
+    //        let heightScale: CGFloat = playerViewHeight / imgHeight
+    //        print("widthScale:\(widthScale)")
+    ////        let finalScale: CGFloat = min(widthScale, heightScale)
+    //        // 新しいフレームを計算
+    //        let newWidth: CGFloat = imgWidth * widthScale
+    //        let newHeight: CGFloat = imgHeight * widthScale
+    //        let rect: CGRect = CGRect(x: 0, y: 0, width: newWidth, height: newHeight)
+    ////        print("imgWidth:\(imgWidth)")
+    ////        print("imgHeight:\(imgHeight)")
+    //
+    //        // 画像サイズをスクリーン幅に合わせる
+    ////        let scale:CGFloat = playerViewWidth / imgWidth
+    ////        let scale:CGFloat = 0.4
+    ////        print("scale:\(scale)")
+    ////        let rect:CGRect =
+    ////            CGRect(x:0, y:0, width:imgWidth*scale, height:imgHeight*scale)
+    ////        let scale_w:CGFloat = playerViewWidth / imgWidth
+    ////        let scale_h:CGFloat = playerViewWidth / imgHeight
+    ////        let rect:CGRect =
+    ////            CGRect(x:0, y:0, width:imgWidth*scale_w, height:imgHeight*scale_h)
+    //
+    //        // ImageView frame をCGRectで作った矩形に合わせる
+    //        imageView.frame = rect;
+    //
+    //        // 画像の中心を画面の中心に設定
+    ////        imageView.center = CGPoint(x:playerViewWidth/2, y:playerViewHeight/2)
+    //
+    //        // UIImageViewのインスタンスをビューに追加
+    //        imageView.tag = 100
+    //
+    //        //画像のviewを削除
+    //        if let viewWithTag = playerView.viewWithTag(100){
+    //            viewWithTag.removeFromSuperview()
+    //        }
+    //
+    //        if playerView.subviews.count == 0 {
+    //            playerView.addSubview(imageView)
+    //        }
+    //        else{
+    //            var b:Bool = true
+    //            for subView in playerView.subviews{
+    //                if b{
+    //                    playerView.addSubview(imageView)
+    //                    b=false
+    //                }
+    //                playerView.addSubview(subView)
+    //            }
+    //        }
+    //    }
     func settingBackground(playerView: inout UIView,
                            setImage: UIImage,
                            scale: CGFloat,
@@ -913,7 +913,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 imageView.bottomAnchor.constraint(equalTo: playerView.bottomAnchor)
             ])
         }
-
+        
         // 画像と透過度を設定
         imageView.alpha = bgopacity
         imageView.image = setImage
@@ -933,7 +933,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         playerView.layer.masksToBounds = true
         imageView.layer.cornerRadius = RADIUS
         imageView.clipsToBounds = true
-
+        
         // レイアウトを即時反映
         playerView.layoutIfNeeded()
     }
@@ -994,11 +994,11 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 }
             }
             try viewContext.save()
-//            appDelegate.saveContext()
+            //            appDelegate.saveContext()
         } catch {
         }
         
-
+        
         print("touchDown_rotate called!screenRotate(after):\(screenRotate)")
     }
     func rotate_exec(rotate: Rotate)  {
@@ -1037,14 +1037,14 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             openBackgroundSetting()
             return
         }
-
+        
         // ★ 変更：猶予中（DEBUG=1分 / RELEASE=24h）は無制限で開放
         if isWithinInstallGrace() {
             print("🆓 Install grace active → skipping reward ad")
             openBackgroundSetting()
             return
         }
-
+        
         // 以降は従来の事前告知→視聴フロー
         let alert = UIAlertController(
             title: "背景設定の解放",
@@ -1072,39 +1072,39 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     func updateFramesForRotation() {
         let player1Frame = player1view.frame
         let player2Frame = player2view.frame
-
+        
         // 回転後のフレームを計算
         let rotatedPlayer1Frame = CGRect(x: 0, y: view.bounds.height - player1Frame.width, width: player1Frame.height, height: player1Frame.width)
         let rotatedPlayer2Frame = CGRect(x: 0, y: 0, width: player2Frame.height, height: player2Frame.width)
-
+        
         // Auto Layout制約を無効にしてから新しいフレームを適用
-//        player1view.translatesAutoresizingMaskIntoConstraints = true
-//        player2view.translatesAutoresizingMaskIntoConstraints = true
+        //        player1view.translatesAutoresizingMaskIntoConstraints = true
+        //        player2view.translatesAutoresizingMaskIntoConstraints = true
         p1bg.translatesAutoresizingMaskIntoConstraints = true
         p2bg.translatesAutoresizingMaskIntoConstraints = true
-
-//        player1view.frame = rotatedPlayer1Frame
+        
+        //        player1view.frame = rotatedPlayer1Frame
         p1bg.frame = rotatedPlayer1Frame
-//        player2view.frame = rotatedPlayer2Frame
+        //        player2view.frame = rotatedPlayer2Frame
         p2bg.frame = rotatedPlayer2Frame
-
+        
         // 必要に応じてAuto Layout制約を再設定
-//        player1view.translatesAutoresizingMaskIntoConstraints = false
-//        player2view.translatesAutoresizingMaskIntoConstraints = false
+        //        player1view.translatesAutoresizingMaskIntoConstraints = false
+        //        player2view.translatesAutoresizingMaskIntoConstraints = false
         p1bg.translatesAutoresizingMaskIntoConstraints = false
         p2bg.translatesAutoresizingMaskIntoConstraints = false
-
+        
         // 必要な制約を再設定
         NSLayoutConstraint.activate([
             // player1 (下側のプレイヤー)
-//            player1view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-//            player1view.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            //            player1view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            //            player1view.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             p1bg.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             p1bg.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
+            
             // player2 (上側のプレイヤー)
-//            player2view.topAnchor.constraint(equalTo: view.topAnchor),
-//            player2view.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            //            player2view.topAnchor.constraint(equalTo: view.topAnchor),
+            //            player2view.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             p2bg.topAnchor.constraint(equalTo: view.topAnchor),
             p2bg.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
@@ -1122,13 +1122,13 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         b.setImage(img, for: .normal)
         b.setTitle(nil, for: .normal)
         b.tintColor = .tintColor
-
+        
         // 2) 触りやすいヒットエリア（見た目はそのままでもOK）
         b.contentEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         b.translatesAutoresizingMaskIntoConstraints = false
         b.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
         b.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
-
+        
         // 3) 画像のフィット
         b.imageView?.contentMode = .scaleAspectFit
     }
@@ -1159,27 +1159,27 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         do {
             let count = try viewContext.count(for: req)
             if count == 0 {
-
+                
                 func insertDefaultImage(named: String, player: Int16) {
                     if let entity = NSEntityDescription.entity(forEntityName: "Background", in: viewContext),
                        let img = UIImage(named: named),
                        let data = img.pngData() {
-
+                        
                         let record = Background(entity: entity, insertInto: viewContext)
                         let nextId = Utilities.getNextId(viewContext: viewContext)
                         record.id      = Int32(Int16(nextId))
                         record.picture = data
                         record.scale   = 1.0
                         record.player  = player
-
+                        
                         print("🖼️ Seed default background \(named) → player \(player)")
                     }
                 }
-
+                
                 // ✅ 自分用 & 相手用の２枚
                 insertDefaultImage(named: Consts.ASSET_DEFAULT_BG_1, player: 1)
                 insertDefaultImage(named: Consts.ASSET_DEFAULT_BG_2, player: 2)
-
+                
                 try viewContext.save()
                 UserDefaults.standard.set(true, forKey: Consts.BG_SEEDED_KEY)
             }
@@ -1189,10 +1189,10 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     func updateLifeLabelStyle(isDark: Bool) {
         let labelList = [life1, life2]
-
+        
         for label in labelList {
             guard let label = label else { continue }
-
+            
             if isDark {
                 label.textColor = .white
                 label.layer.shadowColor = UIColor.black.cgColor
@@ -1200,7 +1200,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 label.textColor = .black
                 label.layer.shadowColor = UIColor.white.withAlphaComponent(0.6).cgColor
             }
-
+            
             label.layer.shadowRadius = 4
             label.layer.shadowOpacity = 0.8
             label.layer.shadowOffset = .zero
