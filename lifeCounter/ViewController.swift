@@ -554,7 +554,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     @IBAction func touchDown_image_settingBtn(_ sender: Any) {
         haptic(.light)
-        showRewardedAdWithDialog()
+        openBackgroundSetting()   // ← 直接開く（リワード無し）
     }
     
     private func openBackgroundSetting() {
