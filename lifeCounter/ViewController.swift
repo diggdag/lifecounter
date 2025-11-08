@@ -79,6 +79,38 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     private var timerMinusP2: Timer?
     private var timerPlusP1:  Timer?
     private var timerPlusP2:  Timer?
+    
+    // ==== Life History (MVP: in-memory) ====
+
+    private struct LifeEvent {
+        let ts: Date
+        let life1: Int
+        let life2: Int
+        let d1: Int      // 前回からの差分
+        let d2: Int
+        let reason: Reason
+        enum Reason { case auto, manual, clear, dice }
+    }
+
+    private var history: [LifeEvent] = []
+    private var lastSnapshot: (l1: Int, l2: Int) = (20, 20)
+    
+    // 入力停止で自動スナップショット
+    private var idleTimer: Timer?
+    private let idleSec: TimeInterval = 2.0   // お好みで 1.5〜3.0 秒くらい
+    private var pendingReason: LifeEvent.Reason = .manual   // ← 追加
+
+    // ドロワーUI
+    private var historyBlur: UIVisualEffectView!
+    private var historyTable: UITableView!
+    
+    
+    private var historyContainer: UIView?
+    private var drawerTrailing: NSLayoutConstraint?
+    private var drawerWidth: CGFloat { max(180, view.bounds.width * 0.42) } // 以前: 0.28
+    private var drawerIsOpen = false
+    
+    
     private func ensureInstallDateSaved() {
         // まだ保存されていなければ現在時刻を保存（初回起動時のみ）
         let ud = UserDefaults.standard
@@ -223,6 +255,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             object: nil
         )
         //        bannerView.backgroundColor=UIColor.green
+        
+        setupHistoryDrawerIfNeeded()
     }
     @objc func appBecameActive() {
         updateLifeLabelStyle(isDark: UITraitCollection.isDarkMode)
@@ -239,6 +273,11 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         //ad start
         coordinator.animate(alongsideTransition: { _ in
             self.loadBannerAd()
+            guard let container = self.historyContainer,
+                          let widthC = container.constraints.first(where: { $0.firstAttribute == .width }) else { return }
+                    widthC.constant = self.drawerWidth
+                    if self.drawerIsOpen == false { self.drawerTrailing?.constant = self.drawerWidth + 16 }
+                    self.view.layoutIfNeeded()
         })
         //ad end
     }
@@ -271,6 +310,141 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
         print("aspect:\(aspect)")
+    }
+    private func setupHistoryDrawerIfNeeded() {
+        guard historyContainer == nil else { return }
+
+        // コンテナ（右ドロワー）
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+        container.layer.cornerRadius = 12
+        container.clipsToBounds = true
+        container.layoutMargins = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6) // ← 左右を少なくして余白調整
+
+        view.addSubview(container)
+
+        // 幅と上下制約
+        let widthC = container.widthAnchor.constraint(equalToConstant: drawerWidth)
+        NSLayoutConstraint.activate([
+            widthC,
+            container.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8)
+        ])
+
+        // 右からのスライド用制約
+        let trailingC = container.trailingAnchor.constraint(equalTo: view.trailingAnchor,
+                                                           constant: drawerWidth + 16)
+        trailingC.isActive = true
+
+        self.historyContainer = container
+        self.drawerTrailing = trailingC
+
+        // ===== テーブルビュー =====
+        let table = UITableView(frame: .zero, style: .plain)
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.backgroundColor = .clear
+        table.separatorStyle = .singleLine
+        table.separatorInset = .zero
+        table.rowHeight = 40 // ← 行間を少し詰める
+        table.showsVerticalScrollIndicator = false
+        table.dataSource = self
+        table.delegate = self
+
+        container.addSubview(table)
+        NSLayoutConstraint.activate([
+            table.leadingAnchor.constraint(equalTo: container.layoutMarginsGuide.leadingAnchor),
+            table.trailingAnchor.constraint(equalTo: container.layoutMarginsGuide.trailingAnchor),
+            table.topAnchor.constraint(equalTo: container.layoutMarginsGuide.topAnchor),
+            table.bottomAnchor.constraint(equalTo: container.layoutMarginsGuide.bottomAnchor)
+        ])
+        self.historyTable = table
+
+        // ===== スワイプジェスチャ =====
+        let edge = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(onEdgePan(_:)))
+        edge.edges = .right
+        view.addGestureRecognizer(edge)
+    }
+    
+    @objc private func onEdgePan(_ g: UIScreenEdgePanGestureRecognizer) {
+        setupHistoryDrawerIfNeeded()
+        guard let trailing = drawerTrailing else { return }
+        let tx = -g.translation(in: view).x                 // 右端→左へドラッグを正方向に
+        let t = max(0, min(1, tx / drawerWidth))            // 0..1 にクランプ
+        trailing.constant = (1 - t) * (drawerWidth + 16)    // 1=開き切り
+
+        if g.state == .ended || g.state == .cancelled {
+            (t > 0.35) ? openDrawer(animated: true) : closeDrawer(animated: true)
+        }
+    }
+    @objc private func onDrawerPan(_ g: UIPanGestureRecognizer) {
+        // 念のためここでも生成
+        setupHistoryDrawerIfNeeded()
+
+        if g.state == .began { g.setTranslation(.zero, in: view) }
+
+        let dx = g.translation(in: view).x
+        let progress = max(0, min(1, 1 - dx / drawerWidth))
+
+        guard let trailing = drawerTrailing else { return }   // ← 安全に取り出す
+        trailing.constant = progress * (drawerWidth + 16)
+
+        if g.state == .ended || g.state == .cancelled {
+            (progress < 0.65) ? openDrawer(animated: true) : closeDrawer(animated: true)
+        }
+    }
+    private func openDrawer(animated: Bool) {
+        setupHistoryDrawerIfNeeded()
+        historyContainer?.isHidden = false
+        drawerIsOpen = true
+        drawerTrailing?.constant = drawerWidth + 16
+        historyTable?.reloadData() // ←追加
+        animateLayout(animated)
+    }
+
+    private func closeDrawer(animated: Bool) {
+        drawerTrailing?.constant = 0                  // ← ?. で安全に
+        drawerIsOpen = false
+        animateLayout(animated) { [weak self] in self?.historyContainer?.isHidden = true }
+    }
+    private func animateLayout(_ animated: Bool, completion: (() -> Void)? = nil) {
+        if animated {
+            UIView.animate(withDuration: 0.22, delay: 0, options: [.curveEaseOut]) {
+                self.view.layoutIfNeeded()
+            } completion: { _ in completion?() }
+        } else {
+            view.layoutIfNeeded()
+            completion?()
+        }
+    }
+    // アイドルタイマーを蹴る（理由つき）
+    private func bumpIdleTimer(reason: LifeEvent.Reason = .manual) {
+        pendingReason = reason                     // 直近の操作理由を覚える
+        idleTimer?.invalidate()
+        idleTimer = Timer.scheduledTimer(withTimeInterval: idleSec, repeats: false) { [weak self] _ in
+            self?.snapshotIfChanged(reason: self?.pendingReason ?? .manual)
+        }
+    }
+
+    // スナップショット
+    private func snapshotIfChanged(reason: LifeEvent.Reason) {
+        guard _life1 != lastSnapshot.l1 || _life2 != lastSnapshot.l2 else { return }
+
+        let ev = LifeEvent(
+            ts: Date(),
+            life1: _life1, life2: _life2,
+            d1: _life1 - lastSnapshot.l1,
+            d2: _life2 - lastSnapshot.l2,
+            reason: reason
+        )
+
+        history.append(ev)
+        if history.count > 200 { history.removeFirst() }
+
+        lastSnapshot = (_life1, _life2)
+
+        // 👇 ドロワーのテーブルを更新
+        historyTable?.reloadData()
     }
     private func scheduleReset(_ timerRef: inout Timer?, action: @escaping () -> Void) {
         timerRef?.invalidate()
@@ -460,28 +634,31 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     override var prefersStatusBarHidden: Bool{
         return true
     }
-    
     @IBAction func touchDown_clearBtn(_ sender: Any) {
         haptic(.heavy)
-        let t:CGFloat = 1.0//反時計回りにしたい場合は-1.0を指定
-        self.clearBtn.spinAnim(self.clearBtn,t)
-        
-        //広告表示(勝ってたら広告を表示)
-        //        if interstitial.isReady && Int(life1.text!)! > Int(life2.text!)! {
-        //            interstitial.present(fromRootViewController: self)
-        //        }
-        //        else {
-        //            print("Ad wasn't ready")
-        //        }
+        self.clearBtn.spinAnim(self.clearBtn, 1.0)
+
         guard let interstitial = interstitial else {
-            return print("Ad wasn't ready.（広告が使える状態でない）")
+            print("Ad wasn't ready.（広告が使える状態でない）")
+            return
         }
-        
-        // The UIViewController parameter is an optional.
         interstitial.present(fromRootViewController: self)
+
+        // --- ライフをデフォルト値へ ---
         refreshLife()
-        //画面初期化
-        //        screenInitialize(sender)
+
+        // --- 履歴を自動クリア ---
+        history.removeAll()
+        historyTable?.reloadData()
+
+        // --- スナップショット基準を現状（初期値）に更新 ---
+        lastSnapshot = (_life1, _life2)
+
+        // --- アイドルタイマー停止（直後の自動記録を防止）---
+        idleTimer?.invalidate()
+
+        // （任意）ドロワーを閉じる
+        closeDrawer(animated: true)
     }
     
     //広告作成
@@ -791,25 +968,20 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         // テンプレ色にしているなら色も指定
         // rotateButton.tintColor = .tintColor
     }
-    func lifeIncrement(_ p:Player){
+    func lifeIncrement(_ p: Player) {
         switch p {
-        case .player1:
-            _life1 += 1
-            life1.text = String(_life1)
-        case .player2:
-            _life2 += 1
-            life2.text = String(_life2)
+        case .player1: _life1 += 1; life1.text = String(_life1)
+        case .player2: _life2 += 1; life2.text = String(_life2)
         }
+        bumpIdleTimer(reason: .manual)    // ← これだけ。snapshotIfChanged は削除
     }
-    func lifeDecrement(_ p:Player)   {
+
+    func lifeDecrement(_ p: Player) {
         switch p {
-        case .player1:
-            _life1 -= 1
-            life1.text = String(_life1)
-        case .player2:
-            _life2 -= 1
-            life2.text = String(_life2)
+        case .player1: _life1 -= 1; life1.text = String(_life1)
+        case .player2: _life2 -= 1; life2.text = String(_life2)
         }
+        bumpIdleTimer(reason: .manual)    // ← これだけ。snapshotIfChanged は削除
     }
     func countDown() {
         switch countDownCnt {
@@ -1029,6 +1201,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         
         // フレームの再計算
         updateFramesForRotation()
+        // ドロワーは常時使えるので、回転の瞬間だけ閉じておくと崩れにくい
+        closeDrawer(animated: false)
     }
     private func showRewardedAdWithDialog() {
         // すでに解放トークンがあればそのまま遷移
@@ -1208,7 +1382,46 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         }
     }
 }
+extension ViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return history.count
+    }
 
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let id = "lifeCell"
+        let cell = tableView.dequeueReusableCell(withIdentifier: id)
+            ?? UITableViewCell(style: .subtitle, reuseIdentifier: id)
+
+        let e = history[history.count - 1 - indexPath.row] // 新しい順で表示
+        cell.backgroundColor = .clear
+        cell.textLabel?.textColor = .white
+        cell.detailTextLabel?.textColor = .white
+
+        let time = DateFormatter.cached.string(from: e.ts)
+        let delta = String(format: "P1 %+d  P2 %+d", e.d1, e.d2)
+        cell.textLabel?.text = "\(time)  \(delta)"
+        cell.detailTextLabel?.text = "→ \(e.life1) ｜ \(e.life2)"
+        // tableView(_:cellForRowAt:)
+        cell.textLabel?.font = .monospacedDigitSystemFont(ofSize: 16, weight: .semibold)
+        cell.textLabel?.adjustsFontSizeToFitWidth = true
+        cell.textLabel?.minimumScaleFactor = 0.75
+        cell.textLabel?.lineBreakMode = .byTruncatingMiddle
+
+        cell.detailTextLabel?.font = .systemFont(ofSize: 13, weight: .regular)
+        cell.detailTextLabel?.adjustsFontSizeToFitWidth = true
+        cell.detailTextLabel?.minimumScaleFactor = 0.8
+        cell.detailTextLabel?.lineBreakMode = .byTruncatingTail
+        return cell
+    }
+}
+
+private extension DateFormatter {
+    static let cached: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm:ss"
+        return f
+    }()
+}
 
 
 class CustomBtn:UIButton{
