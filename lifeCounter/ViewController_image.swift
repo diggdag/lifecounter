@@ -52,35 +52,35 @@ class ViewController_image: UIViewController {
         
         // In this case, we instantiate the banner with desired ad size.
         //        settingAd()
-        //        bannerView.backgroundColor=UIColor.green
+//        bannerView.backgroundColor=UIColor.green
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         viewContext = appDelegate.persistentContainer.viewContext
-        
+
         // 今の総数
         let beforeCount = fetchBackgroundCount()
-        
+
         // シード処理
         let addedV1 = seedDefaultGalleryImagesIfNeeded()
         let addedV2 = seedDefaultGalleryImages_v2()
-        
+
         let totalAdded = addedV1 + addedV2
-        
+
         // 追加後の総数
         let afterCount = fetchBackgroundCount()
-        
+
         // ✅ 元が0枚 = 初回インストール → トースト不要
         // ✅ それ以外で追加があればトースト表示
         if beforeCount > 0 && totalAdded > 0 {
             self.view.makeToast("\(totalAdded)枚のデフォルト背景を追加しました！", duration: 1.8, position: .center)
         }
-        
+
         refreshData()
     }
-    
+
     private func fetchBackgroundCount() -> Int {
         let req: NSFetchRequest<Background> = Background.fetchRequest()
         return (try? viewContext.count(for: req)) ?? 0
@@ -107,7 +107,7 @@ class ViewController_image: UIViewController {
         }
         tableView.reloadData()
     }
-    
+
     @IBAction func touchDown_add(_ sender: Any) {
         //画像を追加するピッカーを起動する
         self.callPhotoLibrary()
@@ -139,7 +139,7 @@ class ViewController_image: UIViewController {
             } catch {
                 print("save error!")
             }
-            
+
             self.delegate?.didPerformAction(from: self)
         }
     }
@@ -153,40 +153,40 @@ extension ViewController_image:UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let background: Background = datas[indexPath.row] as! Background
-        let cell: TableViewCell_list = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list") as! TableViewCell_list
-        let image:UIImage = background.picture == nil ? UIImage() : UIImage(data: background.picture!)!
-        let p1On = background.player == 1 || background.player == 3
-        let p2On = background.player == 2 || background.player == 3
-        var dataList = Data_list(category: image, scale: CGFloat(background.scale), p1: p1On, p2: p2On)
-        cell.setCell(data: dataList) { index, p1, p2 in
-            print("Row \(index) - player1: \(p1), player2: \(p2)")
-            let p1valueChanged = p1On == !p1
-            let p2valueChanged = p2On == !p2
-            print("p1On: \(p1On), p2On: \(p2On)")
-            print("p1valueChanged: \(p1valueChanged), p2valueChanged: \(p2valueChanged)")
-            if p1valueChanged{
-                //一旦リセット
-                self.dataUpdate_noItem(player1: true)
-                if p1 {
-                    background.player += 1
+            let background: Background = datas[indexPath.row] as! Background
+            let cell: TableViewCell_list = tableView.dequeueReusableCell(withIdentifier: "TableViewCell_list") as! TableViewCell_list
+            let image:UIImage = background.picture == nil ? UIImage() : UIImage(data: background.picture!)!
+            let p1On = background.player == 1 || background.player == 3
+            let p2On = background.player == 2 || background.player == 3
+            var dataList = Data_list(category: image, scale: CGFloat(background.scale), p1: p1On, p2: p2On)
+            cell.setCell(data: dataList) { index, p1, p2 in
+                print("Row \(index) - player1: \(p1), player2: \(p2)")
+                let p1valueChanged = p1On == !p1
+                let p2valueChanged = p2On == !p2
+                print("p1On: \(p1On), p2On: \(p2On)")
+                print("p1valueChanged: \(p1valueChanged), p2valueChanged: \(p2valueChanged)")
+                if p1valueChanged{
+                    //一旦リセット
+                    self.dataUpdate_noItem(player1: true)
+                    if p1 {
+                        background.player += 1
+                    }
                 }
-            }
-            if p2valueChanged{
-                //一旦リセット
-                self.dataUpdate_noItem(player1: false)
-                if p2 {
-                    background.player += 2
+                if p2valueChanged{
+                    //一旦リセット
+                    self.dataUpdate_noItem(player1: false)
+                    if p2 {
+                        background.player += 2
+                    }
                 }
+                self.tableView.reloadData()
+                //                        self.dataList[index].p1 = p1
+                //                        self.dataList[index].p2 = p2
             }
-            self.tableView.reloadData()
-            //                        self.dataList[index].p1 = p1
-            //                        self.dataList[index].p2 = p2
-        }
-        cell.backgroundColor = UIColor.clear
-        cell.contentView.backgroundColor = UIColor.clear
-        
-        return cell
+            cell.backgroundColor = UIColor.clear
+            cell.contentView.backgroundColor = UIColor.clear
+            
+            return cell
     }
     func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
         return index
@@ -232,10 +232,10 @@ extension ViewController_image:UITableViewDataSource{
     func deleteItem(at indexPath: IndexPath) {
         let appDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
         let viewContext = appDelegate.persistentContainer.viewContext
-        
+
         let request: NSFetchRequest<Background> = Background.fetchRequest()
         request.predicate = NSPredicate(format: "id = %d", (self.datas[indexPath.row] as! Background).id)
-        
+
         do {
             let fetchResults = try viewContext.fetch(request)
             if let target = fetchResults.first {
@@ -245,7 +245,7 @@ extension ViewController_image:UITableViewDataSource{
         } catch let e as NSError {
             print("error !!! : \(e)")
         }
-        
+
         let screenSizeWidth = UIScreen.main.bounds.width
         let screenSizeHeight = UIScreen.main.bounds.height
         self.view.makeToast(NSLocalizedString("dialog_delete_finished", comment: ""),
@@ -253,10 +253,10 @@ extension ViewController_image:UITableViewDataSource{
                             title: nil,
                             image: nil,
                             completion: nil)
-        
+
         refreshData()
     }
-    
+
 }
 extension ViewController_image:UITableViewDelegate{
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -273,7 +273,7 @@ extension ViewController_image:UITableViewDelegate{
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let background = self.datas[indexPath.row]
-        
+
         if background is Background {
             
             if editingStyle == .delete {
@@ -384,19 +384,19 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
         
         let defaults = [Consts.ASSET_DEFAULT_BG_1, Consts.ASSET_DEFAULT_BG_2]
         var added = 0
-        
+
         for name in defaults {
             guard let data = UIImage(named: name)?.pngData() else {
                 print("❌ seed v1: UIImage(named: \(name)) = nil")
                 continue
             }
-            
+
             // 👇 ここ追加：重複画像チェック
             if existsPictureData(data) {
                 print("⚠️ seed v1: already exists (\(name)), skip")
                 continue
             }
-            
+
             let bg = NSEntityDescription.insertNewObject(forEntityName: "Background", into: viewContext)
             bg.setValue(Utilities.getNextId(viewContext: viewContext), forKey: "id")
             bg.setValue(data, forKey: "picture")
@@ -404,12 +404,12 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
             bg.setValue(Int16(0), forKey: "player")
             added += 1
         }
-        
+
         if added > 0 {
             try? viewContext.save()
             ud.set(true, forKey: key)
         }
-        
+
         return added
     }
     private func seedDefaultGalleryImages_v2() -> Int {
@@ -420,22 +420,22 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
             print("seed v2: already done, skip")
             return 0
         }
-        
+
         let names = [Consts.ASSET_DEFAULT_BG_2_1, Consts.ASSET_DEFAULT_BG_2_2]
         var added = 0
-        
+
         for name in names {
             guard let data = UIImage(named: name)?.pngData() else {
                 print("❌ seed v2: UIImage(named: \(name)) = nil")
                 continue
             }
-            
+
             // 👇 ここ追加：重複画像チェック
             if existsPictureData(data) {
                 print("⚠️ seed v2: already exists (\(name)), skip")
                 continue
             }
-            
+
             let bg = NSEntityDescription.insertNewObject(forEntityName: "Background", into: viewContext)
             bg.setValue(Utilities.getNextId(viewContext: viewContext), forKey: "id")
             bg.setValue(data, forKey: "picture")
@@ -443,7 +443,7 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
             bg.setValue(Int16(0), forKey: "player")
             added += 1
         }
-        
+
         if added > 0 {
             do { try viewContext.save() } catch {
                 print("seed v2 save error: \(error)")
@@ -451,7 +451,7 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
             }
             ud.set(true, forKey: key)
         }
-        
+
         print("✅ seeded v2 (\(added) item(s))")
         return added
     }
