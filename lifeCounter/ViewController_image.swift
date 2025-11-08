@@ -115,7 +115,7 @@ class ViewController_image: UIViewController {
         
         let options = GADMultipleAdsAdLoaderOptions()
 //        options.numberOfAds = flatIndex/Consts.LIST_AD_INTERVAL
-        options.numberOfAds = Consts.LIST_AD_INTERVAL
+        options.numberOfAds = Consts.NATIVE_AD_LOAD_COUNT
         
         adLoader = GADAdLoader(adUnitID: Consts.ADMOB_UNIT_ID_LIST_NATIVE,
                                rootViewController: self,
@@ -145,7 +145,9 @@ class ViewController_image: UIViewController {
         
         //0番目にいれるか
 //        updatedDatas.append(adBackground)
-        
+        // ✅ 0番目（先頭）に広告を入れる
+        updatedDatas.append(AdAccount(name: "PR", adFlg: true, adIndex: adCounter))
+        adCounter += 1
         for data in datas {
             updatedDatas.append(data)
             if (count + 1) % Consts.LIST_AD_INTERVAL == 0 {
@@ -555,6 +557,10 @@ extension ViewController_image: GADNativeAdLoaderDelegate {
     }
     
     func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+        print("adLoader didReveive called!!")
+        print("✅ native ad:", nativeAd.headline ?? "-")
+            print("🎬 hasVideoContent:", nativeAd.mediaContent.hasVideoContent,
+                  " aspect:", nativeAd.mediaContent.aspectRatio)
 //        self.nativeAd = nativeAd
         nativeAds.append(nativeAd)
         tableView.reloadData() // リロードして表示

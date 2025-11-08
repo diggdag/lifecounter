@@ -9,7 +9,11 @@ import UIKit
 class Consts {
     static let PLAYER1:Int16=0
     static let PLAYER2:Int16=1
-    static let LIST_AD_INTERVAL: Int = 3
+    /// 広告を何行おきに挿入するか
+    static let LIST_AD_INTERVAL = 3
+
+    /// 一度のロードで読み込む最大広告数
+    static let NATIVE_AD_LOAD_COUNT = 6
     static let SETTING_DEFAULT_LIFE_STEP:Float=5
     static let FORMAT_DATE_HIS:String="yyyy/MM/dd' 'HH:mm"
         

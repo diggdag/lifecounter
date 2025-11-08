@@ -778,7 +778,6 @@
                                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                     <constraints>
                                                         <constraint firstItem="dWE-G1-Ams" firstAttribute="top" secondItem="8tm-l7-00E" secondAttribute="top" constant="5" id="1MJ-Ey-N2P"/>
-                                                        <constraint firstItem="Jus-HR-m5S" firstAttribute="leading" secondItem="2Xf-Ef-eUp" secondAttribute="leading" id="5eB-qR-ddq"/>
                                                         <constraint firstItem="GeO-7k-gSC" firstAttribute="leading" secondItem="dWE-G1-Ams" secondAttribute="leading" id="6G8-a9-pQ0"/>
                                                         <constraint firstItem="2Xf-Ef-eUp" firstAttribute="centerY" secondItem="dWE-G1-Ams" secondAttribute="centerY" id="F6M-4O-a97"/>
                                                         <constraint firstAttribute="trailing" secondItem="Jus-HR-m5S" secondAttribute="trailing" constant="5" id="JPW-CV-AJy"/>
@@ -787,6 +786,7 @@
                                                         <constraint firstItem="dWE-G1-Ams" firstAttribute="leading" secondItem="8tm-l7-00E" secondAttribute="leading" constant="10" id="VoD-hu-GCW"/>
                                                         <constraint firstItem="Jus-HR-m5S" firstAttribute="leading" secondItem="GeO-7k-gSC" secondAttribute="trailing" constant="5" id="ayC-Jr-oxz"/>
                                                         <constraint firstItem="Jus-HR-m5S" firstAttribute="centerY" secondItem="GeO-7k-gSC" secondAttribute="centerY" id="cAP-cU-7Zv"/>
+                                                        <constraint firstItem="2Xf-Ef-eUp" firstAttribute="leading" secondItem="Jus-HR-m5S" secondAttribute="leading" id="fLG-LP-lDB"/>
                                                     </constraints>
                                                 </view>
                                             </subviews>
@@ -798,11 +798,11 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <outlet property="headlineLabel" destination="2Xf-Ef-eUp" id="0I4-NB-BVO"/>
-                                            <outlet property="iconImageView" destination="GeO-7k-gSC" id="7uK-Gd-RrW"/>
-                                            <outlet property="mediaContentView" destination="Jus-HR-m5S" id="UvX-nF-tN6"/>
-                                            <outlet property="memo" destination="dWE-G1-Ams" id="8kV-Ke-oOk"/>
-                                            <outlet property="nativeAdView" destination="8tm-l7-00E" id="eHY-9d-y6x"/>
+                                            <outlet property="headlineLabel" destination="2Xf-Ef-eUp" id="WX7-34-qh2"/>
+                                            <outlet property="iconImageView" destination="GeO-7k-gSC" id="4Lf-85-59h"/>
+                                            <outlet property="mediaContentView" destination="Jus-HR-m5S" id="IWc-8c-AaB"/>
+                                            <outlet property="memo" destination="dWE-G1-Ams" id="hra-b4-nie"/>
+                                            <outlet property="nativeAdView" destination="8tm-l7-00E" id="tVn-Ht-sZD"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
