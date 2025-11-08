@@ -321,16 +321,22 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         container.layer.cornerRadius = 12
         container.clipsToBounds = true
         container.layoutMargins = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6) // ← 左右を少なくして余白調整
-
+        // ドロワー本体のパン（閉じ操作用）
+        let drawerPan = UIPanGestureRecognizer(target: self, action: #selector(onDrawerPan(_:)))
+        container.addGestureRecognizer(drawerPan)
         view.addSubview(container)
 
-        // 幅と上下制約
+        // ====== ここを調整 ======
+        let vInset: CGFloat = 60        // ← 上下の余白。好みで 72〜120 くらい
         let widthC = container.widthAnchor.constraint(equalToConstant: drawerWidth)
+
         NSLayoutConstraint.activate([
             widthC,
-            container.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8)
+            container.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: vInset),
+            container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -vInset)
         ])
+        // =======================
+
 
         // 右からのスライド用制約
         let trailingC = container.trailingAnchor.constraint(equalTo: view.trailingAnchor,
@@ -369,43 +375,58 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     @objc private func onEdgePan(_ g: UIScreenEdgePanGestureRecognizer) {
         setupHistoryDrawerIfNeeded()
         guard let trailing = drawerTrailing else { return }
-        let tx = -g.translation(in: view).x                 // 右端→左へドラッグを正方向に
-        let t = max(0, min(1, tx / drawerWidth))            // 0..1 にクランプ
-        trailing.constant = (1 - t) * (drawerWidth + 16)    // 1=開き切り
+
+        let tx = -g.translation(in: view).x      // 右端→左へドラッグで正方向
+        let t  = max(0, min(1, tx / drawerWidth)) // 0..1
+        trailing.constant = (1 - t) * (drawerWidth + 16)
 
         if g.state == .ended || g.state == .cancelled {
-            (t > 0.35) ? openDrawer(animated: true) : closeDrawer(animated: true)
+            let vx = -g.velocity(in: view).x // 左向き速度は正
+            // ✅ しきい値ゆるめ：20%超 or 充分な左向き速度で「開く」
+            if t > 0.20 || vx > 300 {
+                openDrawer(animated: true)
+            } else {
+                closeDrawer(animated: true)
+            }
         }
     }
     @objc private func onDrawerPan(_ g: UIPanGestureRecognizer) {
-        // 念のためここでも生成
         setupHistoryDrawerIfNeeded()
+        guard let trailing = drawerTrailing else { return }
 
         if g.state == .began { g.setTranslation(.zero, in: view) }
 
-        let dx = g.translation(in: view).x
-        let progress = max(0, min(1, 1 - dx / drawerWidth))
-
-        guard let trailing = drawerTrailing else { return }   // ← 安全に取り出す
-        trailing.constant = progress * (drawerWidth + 16)
+        let total = drawerWidth + 16
+        let dx = g.translation(in: view).x          // 右へ戻すと + 方向
+        let c = min(max(dx, 0), total)              // 0...total にクランプ
+        trailing.constant = c                       // 0=開き切り, total=収納
 
         if g.state == .ended || g.state == .cancelled {
-            (progress < 0.65) ? openDrawer(animated: true) : closeDrawer(animated: true)
+            let vx = g.velocity(in: view).x
+            // 35% 以上右へ戻した or 右向きに速い → 閉じる。それ以外 → 開いたまま
+            if c > total * 0.35 || vx > 300 {
+                closeDrawer(animated: true)
+            } else {
+                openDrawer(animated: true)
+            }
         }
     }
     private func openDrawer(animated: Bool) {
         setupHistoryDrawerIfNeeded()
         historyContainer?.isHidden = false
         drawerIsOpen = true
-        drawerTrailing?.constant = drawerWidth + 16
-        historyTable?.reloadData() // ←追加
+        drawerTrailing?.constant = 0                 // ← 0 が「開く」
+        historyTable?.reloadData()
         animateLayout(animated)
     }
 
     private func closeDrawer(animated: Bool) {
-        drawerTrailing?.constant = 0                  // ← ?. で安全に
+        let total = drawerWidth + 16
+        drawerTrailing?.constant = total             // ← 幅+マージンが「閉じる」
         drawerIsOpen = false
-        animateLayout(animated) { [weak self] in self?.historyContainer?.isHidden = true }
+        animateLayout(animated) { [weak self] in
+            self?.historyContainer?.isHidden = true
+        }
     }
     private func animateLayout(_ animated: Bool, completion: (() -> Void)? = nil) {
         if animated {
