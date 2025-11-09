@@ -274,10 +274,10 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         coordinator.animate(alongsideTransition: { _ in
             self.loadBannerAd()
             guard let container = self.historyContainer,
-                          let widthC = container.constraints.first(where: { $0.firstAttribute == .width }) else { return }
-                    widthC.constant = self.drawerWidth
-                    if self.drawerIsOpen == false { self.drawerTrailing?.constant = self.drawerWidth + 16 }
-                    self.view.layoutIfNeeded()
+                  let widthC = container.constraints.first(where: { $0.firstAttribute == .width }) else { return }
+            widthC.constant = self.drawerWidth
+            self.drawerTrailing?.constant = self.drawerIsOpen ? 0 : (self.drawerWidth + 16)
+            self.view.layoutIfNeeded()
         })
         //ad end
     }
@@ -654,6 +654,17 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     override var prefersStatusBarHidden: Bool{
         return true
+    }
+    @IBAction func touchDown_history(_ sender: Any) {
+        haptic(.light)
+        // ドロワーUIが未生成なら用意
+        setupHistoryDrawerIfNeeded()
+        // 開閉トグル
+        if drawerIsOpen {
+            closeDrawer(animated: true)
+        } else {
+            openDrawer(animated: true)
+        }
     }
     @IBAction func touchDown_clearBtn(_ sender: Any) {
         haptic(.heavy)

@@ -151,19 +151,37 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="pst-Ac-v53">
                                         <rect key="frame" x="20" y="0.0" width="374" height="45"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zca-e2-Ri9" userLabel="dice">
-                                                <rect key="frame" x="0.0" y="4.5" width="27.5" height="36"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zca-e2-Ri9" userLabel="history">
+                                                <rect key="frame" x="0.0" y="4.5" width="30.5" height="36"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                                <state key="normal">
+                                                    <color key="titleColor" systemColor="labelColor"/>
+                                                    <imageReference key="image" image="list.bullet.rectangle" catalog="system" symbolScale="large"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="touchDown_history:" destination="BYZ-38-t0r" eventType="touchDown" id="tSU-E0-1iD"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Ay-ah-uHq" userLabel="dice">
+                                                <rect key="frame" x="73" y="4.5" width="27.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
                                                     <imageReference key="image" image="dice" catalog="system" symbolScale="large"/>
                                                 </state>
                                                 <connections>
-                                                    <action selector="touchDown_dice6:" destination="BYZ-38-t0r" eventType="touchDown" id="436-5y-nB8"/>
+                                                    <action selector="touchDown_dice6:" destination="BYZ-38-t0r" eventType="touchDown" id="L4q-g5-dka"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TCC-Ub-C9Q" userLabel="clearBtn" customClass="CustomBtn" customModule="lifeCounter" customModuleProvider="target">
+                                                <rect key="frame" x="143" y="11.5" width="21" height="22"/>
+                                                <state key="normal" image="arrow.triangle.2.circlepath" catalog="system"/>
+                                                <connections>
+                                                    <action selector="touchDown_clearBtn:" destination="BYZ-38-t0r" eventType="touchDown" id="aD5-1g-SiI"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2LD-kb-0oG" userLabel="imageSettingBtn">
-                                                <rect key="frame" x="88.5" y="4.5" width="30.5" height="36"/>
+                                                <rect key="frame" x="206.5" y="4.5" width="30.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
@@ -174,7 +192,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VZk-7z-KOc" userLabel="rotate">
-                                                <rect key="frame" x="179.5" y="4.5" width="24.5" height="36"/>
+                                                <rect key="frame" x="279.5" y="4.5" width="24.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
@@ -185,7 +203,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9HQ-SV-NgL" userLabel="settingBtn">
-                                                <rect key="frame" x="265" y="4.5" width="27.5" height="36"/>
+                                                <rect key="frame" x="346.5" y="4.5" width="27.5" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                                 <state key="normal">
                                                     <color key="titleColor" systemColor="labelColor"/>
@@ -193,13 +211,6 @@
                                                 </state>
                                                 <connections>
                                                     <action selector="touchDown_setting:" destination="BYZ-38-t0r" eventType="touchDown" id="Hui-4l-9fr"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TCC-Ub-C9Q" userLabel="clearBtn" customClass="CustomBtn" customModule="lifeCounter" customModuleProvider="target">
-                                                <rect key="frame" x="353" y="11.5" width="21" height="22"/>
-                                                <state key="normal" image="arrow.triangle.2.circlepath" catalog="system"/>
-                                                <connections>
-                                                    <action selector="touchDown_clearBtn:" destination="BYZ-38-t0r" eventType="touchDown" id="aD5-1g-SiI"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -256,7 +267,6 @@
                         <outlet property="bgwidthp1" destination="m2t-mB-kHw" id="2tv-Sf-Ozv"/>
                         <outlet property="bgwidthp2" destination="M9a-Gg-46z" id="Pos-9L-FC4"/>
                         <outlet property="clearBtn" destination="TCC-Ub-C9Q" id="fae-bJ-EmP"/>
-                        <outlet property="dice" destination="zca-e2-Ri9" id="Syc-JH-3Bz"/>
                         <outlet property="life1" destination="8pb-Yg-uZT" id="qkd-vs-tPt"/>
                         <outlet property="life2" destination="8dy-MU-EOU" id="QDy-QM-VvM"/>
                         <outlet property="middleView" destination="RGB-OH-td1" id="wMH-dS-zwc"/>
@@ -870,6 +880,7 @@
         <image name="dice1d" width="1299" height="1299"/>
         <image name="gear" catalog="system" width="128" height="122"/>
         <image name="highlighter" catalog="system" width="128" height="120"/>
+        <image name="list.bullet.rectangle" catalog="system" width="128" height="93"/>
         <image name="minus" catalog="system" width="128" height="26"/>
         <image name="person.fill.turn.right" catalog="system" width="128" height="107"/>
         <image name="photo" catalog="system" width="128" height="93"/>
