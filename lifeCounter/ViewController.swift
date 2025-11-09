@@ -14,7 +14,7 @@ import AppTrackingTransparency
 
 class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINavigationControllerDelegate, ChildViewControllerDelegate,GADFullScreenContentDelegate{
     func didPerformAction(from viewController: UIViewController) {
-        print("didPerformAction called!!")
+//        print("didPerformAction called!!")
         setBackground_init()
         if viewController is SettingsTableViewController {
             if SettingsTableViewController.defaultLifeChanged {
@@ -268,14 +268,14 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("viewDidAppear called!!")
+//        print("viewDidAppear called!!")
         if keepScreenAwake { UIApplication.shared.isIdleTimerDisabled = true }
         //ad
         loadBannerAd()
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("viewWillDisappear called!!")
+//        print("viewWillDisappear called!!")
         UIApplication.shared.isIdleTimerDisabled = false
     }
     override func viewWillTransition(to size: CGSize,
@@ -309,7 +309,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     
     //ad
     func loadBannerAd() {
-        print("loadBannerAd called")
+//        print("loadBannerAd called")
         let frame = { () -> CGRect in
             if #available(iOS 11.0, *) {
                 return view.frame.inset(by: view.safeAreaInsets)
@@ -320,7 +320,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         let viewWidth = frame.size.width
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
-        print("aspect:\(aspect)")
+//        print("aspect:\(aspect)")
     }
     private func setupHistoryDrawerIfNeeded() {
         guard historyContainer == nil else { return }
@@ -553,7 +553,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             do {
                 rewardedAd = try await GADRewardedAd.load(withAdUnitID: Consts.ADMOB_UNIT_ID_REWARD, request: GADRequest())
                 rewardedAd?.fullScreenContentDelegate = self
-                print("✅ Rewarded ad loaded successfully")
+//                print("✅ Rewarded ad loaded successfully")
             } catch {
                 print("❌ Failed to load rewarded ad: \(error.localizedDescription)")
             }
@@ -615,14 +615,14 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             let request: NSFetchRequest<Setting> = Setting.fetchRequest()
             let fetchResults2 = try viewContext.fetch(request)
             if let setting = fetchResults2.first {
-                print("bunki 1")
+//                print("bunki 1")
                 if setting.bgopacity != 0 {
                     bgopacity=CGFloat(setting.bgopacity)
                 }
             }
             else{
                 
-                print("bunki 2")
+//                print("bunki 2")
             }
             
             
@@ -1184,7 +1184,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     @IBAction func touchDown_rotate(_ sender: Any) {
         haptic(.light)
-        print("touchDown_rotate called!screenRotate(before):\(screenRotate)")
+//        print("touchDown_rotate called!screenRotate(before):\(screenRotate)")
         
         switch screenRotate {
         case .normal:
@@ -1223,10 +1223,10 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         }
         
         
-        print("touchDown_rotate called!screenRotate(after):\(screenRotate)")
+//        print("touchDown_rotate called!screenRotate(after):\(screenRotate)")
     }
     func rotate_exec(rotate: Rotate)  {
-        print("rotate_exec called!\(rotate.rawValue)")
+//        print("rotate_exec called!\(rotate.rawValue)")
         
         var rotatep1: CGFloat = 0         // 自分
         var rotatep2: CGFloat = .pi       // 相手（normal は向かい合わせ）

@@ -27,7 +27,7 @@ class ViewController_image: UIViewController {
     @IBOutlet var bannerHeight: NSLayoutConstraint!
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("ViewController viewDidLoad")
+//        print("ViewController viewDidLoad")
         
         //写真アクセス許可
         if #available(iOS 14, *) {
@@ -92,7 +92,7 @@ class ViewController_image: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("viewDidAppear called, loading banner ad")
+//        print("viewDidAppear called, loading banner ad")
         //ad
         loadBannerAd()
     }
@@ -217,11 +217,11 @@ extension ViewController_image:UITableViewDataSource{
             let p2On = background.player == 2 || background.player == 3
             var dataList = Data_list(category: image, scale: CGFloat(background.scale), p1: p1On, p2: p2On)
             cell.setCell(data: dataList) { index, p1, p2 in
-                print("Row \(index) - player1: \(p1), player2: \(p2)")
+//                print("Row \(index) - player1: \(p1), player2: \(p2)")
                 let p1valueChanged = p1On == !p1
                 let p2valueChanged = p2On == !p2
-                print("p1On: \(p1On), p2On: \(p2On)")
-                print("p1valueChanged: \(p1valueChanged), p2valueChanged: \(p2valueChanged)")
+//                print("p1On: \(p1On), p2On: \(p2On)")
+//                print("p1valueChanged: \(p1valueChanged), p2valueChanged: \(p2valueChanged)")
                 if p1valueChanged{
                     //一旦リセット
                     self.dataUpdate_noItem(player1: true)
@@ -446,7 +446,7 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
             let background = NSEntityDescription.entity(forEntityName: "Background", in: viewContext)
             let newRecord = NSManagedObject(entity: background!, insertInto: viewContext)
             let next_id = Utilities.getNextId(viewContext: viewContext)
-            print("nextId:\(next_id)")
+//            print("nextId:\(next_id)")
             newRecord.setValue(next_id, forKey: "id")
             newRecord.setValue(pickedImage.pngData(), forKey: "picture")
             newRecord.setValue(scale, forKey: "scale")
@@ -543,8 +543,8 @@ extension ViewController_image:UIImagePickerControllerDelegate,UINavigationContr
 extension ViewController_image:UIAdaptivePresentationControllerDelegate{
     // モーダルが閉じられたときに呼ばれるメソッド
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        print("モーダルビューが閉じられました")
-        print("ロールバックします")
+//        print("モーダルビューが閉じられました")
+//        print("ロールバックします")
         viewContext.rollback()
         // ここで閉じられた後の処理を行う
         delegate?.didPerformAction(from: self)

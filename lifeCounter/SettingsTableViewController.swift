@@ -112,7 +112,7 @@ weak var delegate: ChildViewControllerDelegate?
     }
     //ad
     func loadBannerAd() {
-        print("loadBannerAd called")
+//        print("loadBannerAd called")
         let frame = { () -> CGRect in
         if #available(iOS 11.0, *) {
             return view.frame.inset(by: view.safeAreaInsets)
@@ -123,7 +123,7 @@ weak var delegate: ChildViewControllerDelegate?
         let viewWidth = frame.size.width
         let viewHeight = frame.size.height
         let aspect = viewHeight/viewWidth
-        print("aspect:\(aspect)")
+//        print("aspect:\(aspect)")
         bannerView.adSize = GADInlineAdaptiveBannerAdSizeWithWidthAndMaxHeight(viewWidth,50*aspect)
         let request: GADRequest = GADRequest()
         bannerView.load(request)
@@ -212,7 +212,7 @@ weak var delegate: ChildViewControllerDelegate?
         if hosei < 0 {
             hosei = 0
         }
-        print("tableview offset y : \(offsetY)")
+//        print("tableview offset y : \(offsetY)")
         self.view.makeToast(String(format: NSLocalizedString("dialog_setting_finished", comment: "")), point: CGPoint(x: screenSizeWidth/2, y: screenSizeHeight/2+hosei), title: nil, image: nil, completion: nil)
         //toast end
         
