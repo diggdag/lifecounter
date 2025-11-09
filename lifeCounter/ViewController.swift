@@ -109,7 +109,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     private var drawerTrailing: NSLayoutConstraint?
     private var drawerWidth: CGFloat { max(180, view.bounds.width * 0.42) } // 以前: 0.28
     private var drawerIsOpen = false
-    
+    // 1) 追加：フラグ（設定画面と連動させたいならここを差し替え）
+    private var keepScreenAwake = true
     
     private func ensureInstallDateSaved() {
         // まだ保存されていなければ現在時刻を保存（初回起動時のみ）
@@ -129,6 +130,10 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             name: .appDidBecomeActive,
             object: nil
         )
+        NotificationCenter.default.addObserver(self, selector: #selector(onWillResignActive),
+                                               name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onDidBecomeActive),
+                                               name: UIApplication.didBecomeActiveNotification, object: nil)
         // ← 追加：インストール日時を確定させる
         ensureInstallDateSaved()
         //        styleIconButton(clearBtn,   symbolName: "arrow.triangle.2.circlepath")
@@ -263,10 +268,16 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        print("viewDidAppear called!!")
+        if keepScreenAwake { UIApplication.shared.isIdleTimerDisabled = true }
         //ad
         loadBannerAd()
     }
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("viewWillDisappear called!!")
+        UIApplication.shared.isIdleTimerDisabled = false
+    }
     override func viewWillTransition(to size: CGSize,
                                      with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to:size, with:coordinator)
@@ -410,6 +421,15 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
                 openDrawer(animated: true)
             }
         }
+    }
+    @objc private func onWillResignActive() {
+        // バックグラウンドへ → 必ずOFF（OSの方針に従う）
+        UIApplication.shared.isIdleTimerDisabled = false
+    }
+
+    @objc private func onDidBecomeActive() {
+        // 復帰時：必要なら再度ON
+        if keepScreenAwake { UIApplication.shared.isIdleTimerDisabled = true }
     }
     private func openDrawer(animated: Bool) {
         setupHistoryDrawerIfNeeded()
