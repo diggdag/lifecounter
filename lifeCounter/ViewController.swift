@@ -107,7 +107,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     
     private var historyContainer: UIView?
     private var drawerTrailing: NSLayoutConstraint?
-    private var drawerWidth: CGFloat { max(180, view.bounds.width * 0.42) } // 以前: 0.28
+    private var drawerWidth: CGFloat { max(130, view.bounds.width * 0.28) } // 以前: 0.28
     private var drawerIsOpen = false
     // 1) 追加：フラグ（設定画面と連動させたいならここを差し替え）
     private var keepScreenAwake = true
@@ -363,7 +363,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         table.backgroundColor = .clear
         table.separatorStyle = .singleLine
         table.separatorInset = .zero
-        table.rowHeight = 40 // ← 行間を少し詰める
+        table.rowHeight = UITableView.automaticDimension
+        table.estimatedRowHeight = 56
         table.showsVerticalScrollIndicator = false
         table.dataSource = self
         table.delegate = self
@@ -1438,31 +1439,63 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return history.count
     }
-
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let id = "lifeCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: id)
-            ?? UITableViewCell(style: .subtitle, reuseIdentifier: id)
+            ?? UITableViewCell(style: .default, reuseIdentifier: id)   // ← .default に変更
 
-        let e = history[history.count - 1 - indexPath.row] // 新しい順で表示
+        let e = history[history.count - 1 - indexPath.row]
+
         cell.backgroundColor = .clear
-        cell.textLabel?.textColor = .white
-        cell.detailTextLabel?.textColor = .white
 
+        // 1行目: 時間
         let time = DateFormatter.cached.string(from: e.ts)
+        // 2行目: 増減（例: "P1 +1  P2 -3"）
         let delta = String(format: "P1 %+d  P2 %+d", e.d1, e.d2)
-        cell.textLabel?.text = "\(time)  \(delta)"
-        cell.detailTextLabel?.text = "→ \(e.life1) ｜ \(e.life2)"
-        // tableView(_:cellForRowAt:)
-        cell.textLabel?.font = .monospacedDigitSystemFont(ofSize: 16, weight: .semibold)
-        cell.textLabel?.adjustsFontSizeToFitWidth = true
-        cell.textLabel?.minimumScaleFactor = 0.75
-        cell.textLabel?.lineBreakMode = .byTruncatingMiddle
+        // 3行目: 結果（例: "→ 18 ｜ 20"）
+        let result = "→ \(e.life1) ｜ \(e.life2)"
 
-        cell.detailTextLabel?.font = .systemFont(ofSize: 13, weight: .regular)
-        cell.detailTextLabel?.adjustsFontSizeToFitWidth = true
-        cell.detailTextLabel?.minimumScaleFactor = 0.8
-        cell.detailTextLabel?.lineBreakMode = .byTruncatingTail
+        // 3段の本文を作成（改行）
+        let whole = "\(time)\n\(delta)\n\(result)"
+
+        // 見やすいように1行目/2行目/3行目で少しサイズ差をつける（任意）
+        let attr = NSMutableAttributedString(string: whole)
+        let fullRange = NSRange(location: 0, length: attr.length)
+
+        // 既存の色やフォント設定のあとでOK
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 0              // ← 各行の間隔
+        style.paragraphSpacing = 0         // ← 段落間(今回は行間の下側の足し) 0でも可
+        style.alignment = .left
+        attr.addAttribute(.paragraphStyle, value: style, range: fullRange)
+
+        cell.textLabel?.numberOfLines = 0
+        cell.textLabel?.attributedText = attr
+        // ベース色
+        let color = UIColor.white
+        attr.addAttributes([.foregroundColor: color], range: fullRange)
+
+        // 行ごとのフォント
+        let f1 = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: .regular) // 時間
+        let f2 = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: .regular)  // 増減
+        let f3 = UIFont.systemFont(ofSize: 13, weight: .semibold)                 // 結果
+
+        // 行範囲を求めて適用
+        let lines = whole.components(separatedBy: "\n")
+        if lines.count == 3 {
+            let r1 = (whole as NSString).range(of: lines[0])
+            let r2 = (whole as NSString).range(of: lines[1])
+            let r3 = (whole as NSString).range(of: lines[2])
+            attr.addAttributes([.font: f1], range: r1)
+            attr.addAttributes([.font: f2], range: r2)
+            attr.addAttributes([.font: f3], range: r3)
+        }
+
+        // textLabel を複数行で使う
+        cell.textLabel?.numberOfLines = 0
+        cell.textLabel?.attributedText = attr
+        cell.textLabel?.lineBreakMode = .byWordWrapping
+
         return cell
     }
 }
@@ -1484,7 +1517,7 @@ class CustomBtn:UIButton{
     
     func spinAnim(_ sender: UIView,_ t:CGFloat)
     {
-        rotationAnimation.toValue = CGFloat(Double.pi) * t
+        rotationAnimation.toValue = -CGFloat(Double.pi) * t
         rotationAnimation.duration = 0.4//アニメーションにかかる時間
         rotationAnimation.repeatCount = 1.0//何回繰り返すか(MAXFLOATを修正)
         
