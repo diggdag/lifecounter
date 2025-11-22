@@ -107,7 +107,7 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
     
     private var historyContainer: UIView?
     private var drawerTrailing: NSLayoutConstraint?
-    private var drawerWidth: CGFloat { max(130, view.bounds.width * 0.28) } // 以前: 0.28
+    private var drawerWidth: CGFloat { max(100, view.bounds.width * 0.2) } // 以前: 0.28
     private var drawerIsOpen = false
     // 1) 追加：フラグ（設定画面と連動させたいならここを差し替え）
     private var keepScreenAwake = true
@@ -368,6 +368,16 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         table.showsVerticalScrollIndicator = false
         table.dataSource = self
         table.delegate = self
+        // ===== テーブルのヘッダーを追加 =====
+        let header = UILabel()
+        header.text = "You   |   Opp"
+        header.textAlignment = .center
+        header.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        header.textColor = .white
+        header.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        header.frame = CGRect(x: 0, y: 0, width: drawerWidth, height: 32)
+
+        table.tableHeaderView = header
 
         container.addSubview(table)
         NSLayoutConstraint.activate([
@@ -438,6 +448,8 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
         drawerIsOpen = true
         drawerTrailing?.constant = 0                 // ← 0 が「開く」
         historyTable?.reloadData()
+        // ★ 開いたタイミングで一旦一番下へ
+        scrollHistoryToBottom(animated: false)
         animateLayout(animated)
     }
 
@@ -485,8 +497,12 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
 
         lastSnapshot = (_life1, _life2)
 
-        // 👇 ドロワーのテーブルを更新
         historyTable?.reloadData()
+
+        // ★ ドロワーが開いているときだけ自動スクロール
+        if drawerIsOpen {
+            scrollHistoryToBottom(animated: true)
+        }
     }
     private func scheduleReset(_ timerRef: inout Timer?, action: @escaping () -> Void) {
         timerRef?.invalidate()
@@ -1434,6 +1450,18 @@ class ViewController: UIViewController ,UIImagePickerControllerDelegate,UINaviga
             label.layer.masksToBounds = false
         }
     }
+    // MARK: - History scroll helper
+    private func scrollHistoryToBottom(animated: Bool) {
+        guard let table = historyTable, history.count > 0 else { return }
+
+        let lastRow = history.count - 1
+        let indexPath = IndexPath(row: lastRow, section: 0)
+
+        // レイアウト完了後にスクロールさせたいので async
+        DispatchQueue.main.async {
+            table.scrollToRow(at: indexPath, at: .bottom, animated: animated)
+        }
+    }
 }
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -1442,59 +1470,21 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let id = "lifeCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: id)
-            ?? UITableViewCell(style: .default, reuseIdentifier: id)   // ← .default に変更
+            ?? UITableViewCell(style: .default, reuseIdentifier: id)
 
-        let e = history[history.count - 1 - indexPath.row]
+        // ★ 昇順（history は古い順に append しているので indexPath.row のままでOK）
+        let e = history[indexPath.row]
 
         cell.backgroundColor = .clear
 
-        // 1行目: 時間
-        let time = DateFormatter.cached.string(from: e.ts)
-        // 2行目: 増減（例: "P1 +1  P2 -3"）
-        let delta = String(format: "P1 %+d  P2 %+d", e.d1, e.d2)
-        // 3行目: 結果（例: "→ 18 ｜ 20"）
-        let result = "→ \(e.life1) ｜ \(e.life2)"
+        // ★ 一番下の行だけ（変更後ライフ）
+        let result = "\(e.life1) ｜ \(e.life2)"
 
-        // 3段の本文を作成（改行）
-        let whole = "\(time)\n\(delta)\n\(result)"
-
-        // 見やすいように1行目/2行目/3行目で少しサイズ差をつける（任意）
-        let attr = NSMutableAttributedString(string: whole)
-        let fullRange = NSRange(location: 0, length: attr.length)
-
-        // 既存の色やフォント設定のあとでOK
-        let style = NSMutableParagraphStyle()
-        style.lineSpacing = 0              // ← 各行の間隔
-        style.paragraphSpacing = 0         // ← 段落間(今回は行間の下側の足し) 0でも可
-        style.alignment = .left
-        attr.addAttribute(.paragraphStyle, value: style, range: fullRange)
-
-        cell.textLabel?.numberOfLines = 0
-        cell.textLabel?.attributedText = attr
-        // ベース色
-        let color = UIColor.white
-        attr.addAttributes([.foregroundColor: color], range: fullRange)
-
-        // 行ごとのフォント
-        let f1 = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: .regular) // 時間
-        let f2 = UIFont.monospacedDigitSystemFont(ofSize: 13, weight: .regular)  // 増減
-        let f3 = UIFont.systemFont(ofSize: 13, weight: .semibold)                 // 結果
-
-        // 行範囲を求めて適用
-        let lines = whole.components(separatedBy: "\n")
-        if lines.count == 3 {
-            let r1 = (whole as NSString).range(of: lines[0])
-            let r2 = (whole as NSString).range(of: lines[1])
-            let r3 = (whole as NSString).range(of: lines[2])
-            attr.addAttributes([.font: f1], range: r1)
-            attr.addAttributes([.font: f2], range: r2)
-            attr.addAttributes([.font: f3], range: r3)
-        }
-
-        // textLabel を複数行で使う
-        cell.textLabel?.numberOfLines = 0
-        cell.textLabel?.attributedText = attr
-        cell.textLabel?.lineBreakMode = .byWordWrapping
+        cell.textLabel?.text = result
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
+        cell.textLabel?.textColor = .white
+        cell.textLabel?.numberOfLines = 1
+        cell.textLabel?.lineBreakMode = .byTruncatingTail
 
         return cell
     }
